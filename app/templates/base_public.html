@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Veterinaria – Vida Animal{% endblock %}</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+  <style>
+    body{background:#f8f9fa;font-family:system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial}
+    .navbar{background:#0d6efd}
+    .navbar-brand,.nav-link{color:#fff!important;font-weight:500}
+    .btn-cta{background:#198754;color:#fff;border-radius:50px;padding:.6rem 1.2rem}
+    .btn-cta:hover{background:#145c32;color:#fff}
+    .hero{
+      background:linear-gradient(rgba(13,110,253,.6),rgba(13,110,253,.6)),
+                 url('https://images.unsplash.com/photo-1601758123927-1965a4c859b2?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
+      color:#fff;padding:90px 0;text-align:center
+    }
+    .services i{font-size:2rem;color:#0d6efd;margin-bottom:.5rem}
+    footer{background:#0d6efd;color:#fff;text-align:center;padding:18px 0}
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center" href="{{ url_for('main.home') }}">
+      <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="logo" style="height:40px" class="me-2">
+      Vida Animal
+    </a>
+    <button class="navbar-toggler bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div id="menu" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto align-items-lg-center">
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="#servicios">Servicios</a></li>
+        <li class="nav-item"><a class="nav-link" href="#contacto">Contacto</a></li>
+
+        {% if current_user.is_authenticated %}
+          <li class="nav-item ms-lg-3">
+            <a class="btn btn-light" href="{{ url_for('main.dashboard') }}"><i class="fa-solid fa-gauge"></i> Ir al Panel</a>
+          </li>
+          <li class="nav-item ms-2">
+            <a class="btn btn-warning" href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
+          </li>
+        {% else %}
+          <li class="nav-item ms-lg-3">
+            <a class="btn btn-light" href="{{ url_for('auth.login') }}">Iniciar Sesión</a>
+          </li>
+          <li class="nav-item ms-2">
+            <a class="btn btn-warning" href="{{ url_for('auth.register') }}">Registrarse</a>
+          </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer id="contacto">
+  <div class="container">
+    <p class="mb-1">&copy; {{ 2025 }} Veterinaria Vida Animal • Todos los derechos reservados</p>
+    <small><i class="fa-solid fa-location-dot me-1"></i> Calle 123, Ciudad •
+      <i class="fa-solid fa-phone me-1 ms-2"></i> +57 300 000 0000</small>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_scripts %}{% endblock %}
+</body>
+</html>

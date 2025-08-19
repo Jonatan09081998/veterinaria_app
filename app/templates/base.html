@@ -1,75 +1,131 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{% block title %}Veterinaria{% endblock %}</title>
-
-  <!-- Tailwind CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
-
-  <!-- Font Awesome -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
-
-  <style>
-    body {
-      font-family: 'Roboto', sans-serif;
-      background: #f3f4f6;
-    }
-    .sidebar {
-      background: linear-gradient(to bottom, #1e3a8a, #2563eb);
-    }
-    .card {
-      background: white;
-      border-radius: 1rem;
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Veterinaria Vida Animal</title>
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Iconos -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .navbar {
+            background-color: #0d6efd;
+        }
+        .navbar-brand, .nav-link {
+            color: white !important;
+            font-weight: 500;
+        }
+        .navbar-brand img {
+            height: 40px;
+            margin-right: 10px;
+        }
+        .hero {
+            background: linear-gradient(rgba(0, 123, 255, 0.6), rgba(0, 123, 255, 0.6)),
+                        url('https://images.unsplash.com/photo-1601758123927-1965a4c859b2?auto=format&fit=crop&w=1600&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: bold;
+        }
+        .hero p {
+            font-size: 1.2rem;
+        }
+        .services i {
+            font-size: 2rem;
+            color: #0d6efd;
+            margin-bottom: 10px;
+        }
+        footer {
+            background-color: #0d6efd;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+        }
+        .btn-custom {
+            background-color: #198754;
+            color: white;
+            border-radius: 50px;
+            padding: 10px 20px;
+        }
+        .btn-custom:hover {
+            background-color: #145c32;
+        }
+    </style>
 </head>
-<body class="flex h-screen">
+<body>
 
-  {% if current_user.is_authenticated %}
-  <!-- Sidebar -->
-  <aside class="sidebar w-64 text-white p-6">
-    <div class="text-2xl font-bold flex items-center mb-10">
-      <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="logo" class="w-10 mr-2" />
-      Veterinaria
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <img src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Logo">
+            Vida Animal
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menu">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item"><a class="nav-link" href="#">Inicio</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Servicios</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Nosotros</a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Contacto</a></li>
+                <li class="nav-item"><a class="btn btn-light mx-1" href="login.html">Iniciar Sesión</a></li>
+                <li class="nav-item"><a class="btn btn-warning mx-1" href="registro.html">Registrarse</a></li>
+            </ul>
+        </div>
     </div>
-    <nav class="space-y-6">
-      <a href="{{ url_for('main.dashboard') }}" class="block hover:text-yellow-300"><i class="fas fa-home mr-2"></i>Inicio</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-dog mr-2"></i>Mascotas</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-calendar-check mr-2"></i>Citas</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-notes-medical mr-2"></i>Historia Clínica</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-pills mr-2"></i>Recetas</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-store mr-2"></i>Tienda</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-shopping-cart mr-2"></i>Carrito</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-box mr-2"></i>Productos</a>
-      <a href="#" class="block hover:text-yellow-300"><i class="fas fa-file-invoice-dollar mr-2"></i>Facturación</a>
+</nav>
 
-      <!-- 🔹 OPCIONES SEGÚN ROL -->
-      {% if current_user.rol == "admin" %}
-        <a href="{{ url_for('main.admin_panel') }}" class="block hover:text-yellow-300">
-          <i class="fas fa-user-shield mr-2"></i> Panel Admin
-        </a>
-      {% elif current_user.rol == "veterinario" %}
-        <a href="{{ url_for('main.veterinario_panel') }}" class="block hover:text-yellow-300">
-          <i class="fas fa-stethoscope mr-2"></i> Panel Veterinario
-        </a>
-      {% endif %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <h1>Cuidamos de tus Mascotas</h1>
+        <p>Atención veterinaria con amor, dedicación y profesionalismo</p>
+        <a href="registro.html" class="btn btn-custom">Reserva una Cita</a>
+    </div>
+</section>
 
-      <a href="{{ url_for('auth.logout') }}" class="block hover:text-yellow-300"><i class="fas fa-sign-out-alt mr-2"></i>Cerrar Sesión</a>
-    </nav>
-  </aside>
-  {% endif %}
+<!-- Servicios -->
+<section class="services py-5">
+    <div class="container text-center">
+        <h2 class="mb-4">Nuestros Servicios</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <i class="fas fa-stethoscope"></i>
+                <h5>Consultas Generales</h5>
+                <p>Atención médica preventiva y diagnósticos precisos.</p>
+            </div>
+            <div class="col-md-4">
+                <i class="fas fa-syringe"></i>
+                <h5>Vacunación</h5>
+                <p>Protege a tus mascotas con nuestro programa de vacunas.</p>
+            </div>
+            <div class="col-md-4">
+                <i class="fas fa-bone"></i>
+                <h5>Nutrición</h5>
+                <p>Asesoría alimenticia para una vida saludable.</p>
+            </div>
+        </div>
+    </div>
+</section>
 
-  <!-- Main content -->
-  <main class="flex-1 p-10 overflow-y-auto">
-    {% block content %}{% endblock %}
-  </main>
+<!-- Footer -->
+<footer>
+    <p>&copy; 2025 Veterinaria Vida Animal | Todos los derechos reservados</p>
+</footer>
 
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-<!-- Cambio de prueba -->
