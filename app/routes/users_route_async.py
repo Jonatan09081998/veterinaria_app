@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, jsonify, send_file
-from app.models.users import User
+from app.models.usuario import User
 from app import db
 from io import BytesIO
 import base64

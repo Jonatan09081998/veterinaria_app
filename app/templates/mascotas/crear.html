@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>➕ Registrar Mascota</h2>
+
+    <form method="POST" action="{{ url_for('mascotas.crear') }}">
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input type="text" name="nombre" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Especie</label>
+            <input type="text" name="especie" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Raza</label>
+            <input type="text" name="raza" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Edad</label>
+            <input type="number" name="edad" class="form-control" min="0" required>
+        </div>
+
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a href="{{ url_for('mascotas.listar') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

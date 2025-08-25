@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Crear Mascota</h1>
+<form method="POST">
+    <div class="form-group">
+        <label for="nombre">Nombre</label>
+        <input type="text" class="form-control" name="nombre" required>
+    </div>
+    <div class="form-group">
+        <label for="especie">Especie</label>
+        <input type="text" class="form-control" name="especie" required>
+    </div>
+    <div class="form-group">
+        <label for="raza">Raza</label>
+        <input type="text" class="form-control" name="raza" required>
+    </div>
+    <div class="form-group">
+        <label for="edad">Edad</label>
+        <input type="number" class="form-control" name="edad" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Crear</button>
+</form>
+{% endblock %}

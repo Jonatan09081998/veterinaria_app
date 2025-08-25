@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">🐾 Mis Mascotas</h2>
+
+    <a href="{{ url_for('mascotas.crear') }}" class="btn btn-primary mb-3">➕ Registrar Mascota</a>
+
+    {% if mascotas %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Especie</th>
+                    <th>Raza</th>
+                    <th>Edad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mascota in mascotas %}
+                <tr>
+                    <td>{{ mascota.nombre }}</td>
+                    <td>{{ mascota.especie }}</td>
+                    <td>{{ mascota.raza }}</td>
+                    <td>{{ mascota.edad }}</td>
+                    <td>
+                        <a href="{{ url_for('mascotas.editar', id=mascota.id) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
+                        <form action="{{ url_for('mascotas.eliminar', id=mascota.id) }}" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que quieres eliminar esta mascota?')">🗑 Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No has registrado ninguna mascota todavía.</div>
+    {% endif %}
+</div>
+{% endblock %}

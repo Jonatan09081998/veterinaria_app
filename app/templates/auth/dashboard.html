@@ -1,0 +1,12 @@
+{% extends "base_dashboard.html" %}
+
+{% block title %}Inicio - Veterinaria{% endblock %}
+
+{% block content %}
+<div class="card p-4 shadow">
+  <h1 class="text-2xl font-bold mb-3">
+    Bienvenido, {{ current_user.nombre }} 👋
+  </h1>
+  <p>Has iniciado sesión correctamente en el sistema de la veterinaria.</p>
+</div>
+{% endblock %}

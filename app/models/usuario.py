@@ -19,7 +19,8 @@ class Usuario(db.Model, UserMixin):
         foreign_keys="[Carrito.id_usuario]",
         uselist=False  # Un usuario tiene un solo carrito
     )
-
+    # Relación con mascotas (necesaria para back_populates)
+    mascotas = db.relationship("Mascota", back_populates="usuario")
     # Métodos requeridos por Flask-Login
     @property
     def is_active(self):
