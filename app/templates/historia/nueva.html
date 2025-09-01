@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Nueva entrada - {{ mascota.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Nueva entrada para {{ mascota.nombre }}</h2>
+
+    <form method="POST" action="{{ url_for('historia.nueva', id_mascota=mascota.id_mascota) }}">
+        <div class="mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" class="form-control" id="fecha" name="fecha" required>
+        </div>
+        <div class="mb-3">
+            <label for="diagnostico" class="form-label">Diagnóstico</label>
+            <textarea class="form-control" id="diagnostico" name="diagnostico" rows="3" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="tratamiento" class="form-label">Tratamiento</label>
+            <textarea class="form-control" id="tratamiento" name="tratamiento" rows="3" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">💾 Guardar</button>
+        <a href="{{ url_for('historia.listar', id_mascota=mascota.id_mascota) }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

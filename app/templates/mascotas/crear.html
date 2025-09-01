@@ -17,13 +17,21 @@
             <label class="form-label">Raza</label>
             <input type="text" name="raza" class="form-control" required>
         </div>
+       <div class="mb-3">
+    <label class="form-label">Fecha de Nacimiento</label>
+    <input type="date" name="fecha_nacimiento" class="form-control" required>
+</div>
+
         <div class="mb-3">
-            <label class="form-label">Edad</label>
-            <input type="number" name="edad" class="form-control" min="0" required>
-        </div>
+    <label class="form-label">Género</label>
+    <select name="genero" class="form-control" required>
+        <option value="Macho">Macho</option>
+        <option value="Hembra">Hembra</option>
+    </select>
+</div>
 
         <button type="submit" class="btn btn-success">Guardar</button>
-        <a href="{{ url_for('mascotas.listar') }}" class="btn btn-secondary">Cancelar</a>
+        <a href="{{ url_for('mascotas.index') }}" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>
 {% endblock %}

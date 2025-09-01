@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📅 Reservar Cita Médica</h2>
+    <p>Selecciona la fecha, hora y motivo de la cita.</p>
+
+    <form method="POST">
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label for="fecha" class="form-label">Fecha</label>
+                <input type="date" name="fecha" id="fecha" class="form-control" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label for="hora" class="form-label">Hora</label>
+                <input type="time" name="hora" id="hora" class="form-control" required>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label for="motivo" class="form-label">Motivo de la Cita</label>
+            <textarea name="motivo" id="motivo" class="form-control" rows="3" placeholder="Ej: Revisión general, vacunación, emergencia..."></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label for="id_mascota" class="form-label">Selecciona la Mascota</label>
+            <select name="id_mascota" id="id_mascota" class="form-control" required>
+                <option value="">-- Selecciona una mascota --</option>
+                {% for mascota in mascotas %}
+                    <option value="{{ mascota.id_mascota }}">{{ mascota.nombre }} ({{ mascota.especie }})</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Reservar Cita</button>
+        <a href="{{ url_for('mascotas.index') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

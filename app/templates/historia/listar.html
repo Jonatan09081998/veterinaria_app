@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}Historia clínica - {{ mascota.nombre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-3">Historia clínica de {{ mascota.nombre }}</h2>
+
+    <div class="mb-3">
+        <a href="{{ url_for('historia.crear', id_mascota=mascota.id_mascota) }}" class="btn btn-success">
+            ➕ Nueva entrada
+        </a>
+        <a href="{{ url_for('mascotas.index') }}" class="btn btn-secondary">
+            🔙 Volver a mascotas
+        </a>
+    </div>
+
+    {% if historias %}
+    <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Diagnóstico</th>
+                <th>Tratamiento</th>
+                <th>Descripcion</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for h in historias %}
+            <tr>
+                <td>{{ h.id_historia }}</td>
+                <td>{{ h.fecha.strftime("%d/%m/%Y") }}</td>
+                <td>{{ h.diagnostico }}</td>
+                <td>{{ h.tratamiento }}</td>
+                <td>{{ h.descripcion }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+        <div class="alert alert-info">No hay entradas en la historia clínica.</div>
+    {% endif %}
+</div>
+{% endblock %}

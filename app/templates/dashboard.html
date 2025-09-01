@@ -3,9 +3,68 @@
 {% block title %}Inicio - Veterinaria{% endblock %}
 
 {% block content %}
-<div class="card p-6">
-    <h1 class="text-2xl font-bold mb-4">Bienvenido,{{ current_user.nombre }}
- 👋</h1>
-    <p>Has iniciado sesión correctamente en el sistema de la veterinaria.</p>
+<div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+        <h1 class="h3 font-bold">Bienvenido, {{ current_user.nombre }} 👋</h1>
+        <p>Has iniciado sesión correctamente. Desde aquí puedes gestionar a tus mascotas y citas médicas.</p>
+    </div>
+
+    <!-- Botón grande para reservar cita -->
+    <div class="text-center my-4">
+        <a href="{{ url_for('citas.reservar_cita') }}" class="btn btn-success btn-lg shadow">
+            <i class="bi bi-calendar-plus"></i> Reservar Nueva Cita
+        </a>
+    </div>
+
+    <!-- Próximas citas -->
+    {% if citas %}
+    <div class="card p-4 mb-4 shadow-sm">
+        <h2 class="h4">📅 Próximas Citas</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Mascota</th>
+                    <th>Motivo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                <tr>
+                    <td>{{ cita.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ cita.hora.strftime('%H:%M') }}</td>
+                    <td>{{ cita.mascota.nombre }}</td>
+                    <td>{{ cita.motivo or 'Sin motivo' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+
+    <!-- Mis mascotas -->
+    {% if mascotas %}
+    <div class="card p-4 shadow-sm">
+        <h2 class="h4">🐾 Mis Mascotas</h2>
+        <div class="row">
+            {% for mascota in mascotas %}
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ mascota.nombre }}</h5>
+                        <p class="card-text">
+                            <strong>Especie:</strong> {{ mascota.especie }}<br>
+                            <strong>Raza:</strong> {{ mascota.raza }}<br>
+                            <strong>Edad:</strong> {{ mascota.edad }} años
+                        </p>
+                        <a href="{{ url_for('historia.listar', id_mascota=mascota.id_mascota) }}" class="btn btn-sm btn-outline-primary">Ver Historia</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

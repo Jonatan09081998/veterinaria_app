@@ -1,23 +1,25 @@
+from datetime import date
 from app import db
 
 class Mascota(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    __tablename__ = "mascotas"
+
+    id_mascota = db.Column(db.Integer, primary_key=True)
     nombre = db.Column(db.String(100), nullable=False)
-    especie = db.Column(db.String(50), nullable=False)  # perro, gato, etc.
-    raza = db.Column(db.String(100))
-    edad = db.Column(db.Integer)
-   # models/mascota.py
-    usuario_id = db.Column(db.Integer, db.ForeignKey("usuarios.id_usuario"), nullable=False)
+    especie = db.Column(db.String(50), nullable=False)
+    raza = db.Column(db.String(50))
+    genero = db.Column(db.String(10))
+    fecha_nacimiento = db.Column(db.Date)
+    id_usuario = db.Column(db.Integer, db.ForeignKey("usuarios.id_usuario"), nullable=False)
+
     usuario = db.relationship("Usuario", back_populates="mascotas")
 
-    def __init__(self, nombre, especie, raza, edad, usuario_id):
-        self.nombre = nombre
-        self.especie = especie
-        self.raza = raza
-        self.edad = edad
-        self.usuario_id = usuario_id
-        
-
-
-    def __repr__(self):
-        return f"<Mascota {self.nombre}>"
+    # 🔹 Método para calcular la edad automáticamente
+    @property
+    def edad(self):
+        if self.fecha_nacimiento:
+            hoy = date.today()
+            return hoy.year - self.fecha_nacimiento.year - (
+                (hoy.month, hoy.day) < (self.fecha_nacimiento.month, self.fecha_nacimiento.day)
+            )
+        return None

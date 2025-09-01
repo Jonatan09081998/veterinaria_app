@@ -2,40 +2,61 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">🐾 Mis Mascotas</h2>
+    <h2>Mis Mascotas</h2>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary mb-3">⬅️ Volver</a>
 
     <a href="{{ url_for('mascotas.crear') }}" class="btn btn-primary mb-3">➕ Registrar Mascota</a>
 
     {% if mascotas %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Nombre</th>
-                    <th>Especie</th>
-                    <th>Raza</th>
-                    <th>Edad</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for mascota in mascotas %}
-                <tr>
-                    <td>{{ mascota.nombre }}</td>
-                    <td>{{ mascota.especie }}</td>
-                    <td>{{ mascota.raza }}</td>
-                    <td>{{ mascota.edad }}</td>
-                    <td>
-                        <a href="{{ url_for('mascotas.editar', id=mascota.id) }}" class="btn btn-warning btn-sm">✏️ Editar</a>
-                        <form action="{{ url_for('mascotas.eliminar', id=mascota.id) }}" method="POST" style="display:inline;">
-                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Seguro que quieres eliminar esta mascota?')">🗑 Eliminar</button>
-                        </form>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <table class="table table-striped table-bordered">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Especie</th>
+                <th>Raza</th>
+                <th>Género</th>
+                <th>Fecha Nacimiento</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mascota in mascotas %}
+            <tr>
+                <td>{{ mascota.nombre }}</td>
+                <td>{{ mascota.especie }}</td>
+                <td>{{ mascota.raza }}</td>
+                <td>{{ mascota.genero }}</td>
+                <td>
+                    {% if mascota.fecha_nacimiento %}
+                        {{ mascota.fecha_nacimiento.strftime("%d/%m/%Y") }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
+                    <!-- Botón Editar -->
+                    <a href="{{ url_for('mascotas.editar', id_mascota=mascota.id_mascota) }}" 
+                       class="btn btn-sm btn-warning">✏️ Editar</a>
+
+                    <!-- Botón Eliminar -->
+                    <form action="{{ url_for('mascotas.eliminar', id_mascota=mascota.id_mascota) }}" 
+                          method="POST" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('¿Seguro que quieres eliminar esta mascota?');">
+                            🗑️ Eliminar
+                        </button>
+                    </form>
+
+                    <!-- Botón Historia Clínica -->
+                    <a href="{{ url_for('historia.listar', id_mascota=mascota.id_mascota) }}" 
+                       class="btn btn-sm btn-info">📋 Historia Clínica</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
     {% else %}
-        <div class="alert alert-info">No has registrado ninguna mascota todavía.</div>
+        <div class="alert alert-info">No tienes mascotas registradas aún.</div>
     {% endif %}
 </div>
 {% endblock %}

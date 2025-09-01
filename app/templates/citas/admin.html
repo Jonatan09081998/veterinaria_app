@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📋 Citas Pendientes</h2>
+
+    {% if citas %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Mascota</th>
+                    <th>Cliente</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cita in citas %}
+                <tr>
+                    <td>{{ cita.fecha }}</td>
+                    <td>{{ cita.hora }}</td>
+                    <td>{{ cita.mascota.nombre }}</td>
+                    <td>{{ cita.usuario.nombre }}</td>
+                    <td>
+                        <a href="{{ url_for('citas.atender_cita', id_cita=cita.id_cita) }}" class="btn btn-sm btn-success">Atender</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No hay citas pendientes.</div>
+    {% endif %}
+</div>
+{% endblock %}
