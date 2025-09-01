@@ -1,9 +1,15 @@
+# app/decorators.py
 from functools import wraps
 from flask import redirect, url_for, flash
 from flask_login import current_user
 
-# 👇 Decorador para verificar solo si está logueado
+
+# ✅ Decorador personalizado para requerir login
 def login_required(f):
+    """
+    Decorador para requerir que el usuario esté autenticado.
+    Reemplaza al de Flask-Login si lo usas tú.
+    """
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not current_user.is_authenticated:
@@ -13,7 +19,7 @@ def login_required(f):
     return decorated_function
 
 
-# 👇 Decorador para verificar rol específico
+# ✅ Decorador para requerir un rol específico
 def rol_requerido(rol):
     """
     Decorador para restringir acceso a usuarios con un rol específico.
