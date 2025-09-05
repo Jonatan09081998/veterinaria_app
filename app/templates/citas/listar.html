@@ -22,7 +22,7 @@
                     <td>{{ cita.hora.strftime('%H:%M') }}</td>
                     <td>{{ cita.mascota.nombre }}</td>
                     <td>{{ cita.motivo or 'Sin motivo' }}</td>
-                    
+                    <td>{{ cita.estado }}</td>
                     <!-- Columna de estado con badge -->
                     <td>
                         {% if cita.estado == 'pendiente' %}
@@ -33,6 +33,14 @@
                             <span class="badge bg-danger">Cancelada</span>
                         {% else %}
                             <span class="badge bg-secondary">Sin estado</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if cita.estado == 'pendiente' %}
+                            <a href="{{ url_for('citas.editar_cita', id_cita=cita.id_cita) }}" class="btn btn-sm btn-outline-primary">Editar</a>
+                            <a href="{{ url_for('citas.cancelar_cita', id_cita=cita.id_cita) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('¿Estás seguro de cancelar esta cita?')">Cancelar</a>
+                        {% else %}
+                            <span class="text-muted">No disponible</span>
                         {% endif %}
                     </td>
                 </tr>

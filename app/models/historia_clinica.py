@@ -10,6 +10,7 @@ class HistoriaClinica(db.Model):
     descripcion = db.Column(db.Text, nullable=False)
     tratamiento = db.Column(db.Text, nullable=True)
     diagnostico = db.Column(db.Text, nullable=True)
+    id_cita = db.Column(db.Integer, db.ForeignKey("citas.id_cita"), nullable=True)  # Relación con cita, opcional
     # Relación con mascota
     mascota = db.relationship("Mascota", backref="historias")
     def __repr__(self):

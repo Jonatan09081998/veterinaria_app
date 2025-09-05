@@ -7,9 +7,7 @@
     <h2 class="mb-3">Historia clínica de {{ mascota.nombre }}</h2>
 
     <div class="mb-3">
-        <a href="{{ url_for('historia.crear', id_mascota=mascota.id_mascota) }}" class="btn btn-success">
-            ➕ Nueva entrada
-        </a>
+        
         <a href="{{ url_for('mascotas.index') }}" class="btn btn-secondary">
             🔙 Volver a mascotas
         </a>

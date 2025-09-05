@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}Atender Cita - Veterinaria{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+        <h2 class="h3">🩺 Atender Cita - {{ cita.mascota.nombre }}</h2>
+        <p><strong>Dueño:</strong> {{ cita.mascota.usuario.nombre }}</p>
+        <p><strong>Fecha:</strong> {{ cita.fecha.strftime('%d/%m/%Y') }} | <strong>Hora:</strong> {{ cita.hora.strftime('%H:%M') }}</p>
+        <p><strong>Motivo:</strong> {{ cita.motivo or 'Sin motivo' }}</p>
+    </div>
+
+    <!-- Formulario para crear historia clínica -->
+    <div class="card mt-4 p-4">
+        <h3 class="h5">📝 Registrar Historia Clínica</h3>
+        <form method="POST">
+            <div class="mb-3">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea name="descripcion" id="descripcion" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="diagnostico" class="form-label">Diagnóstico</label>
+                <textarea name="diagnostico" id="diagnostico" class="form-control" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="tratamiento" class="form-label">Tratamiento</label>
+                <textarea name="tratamiento" id="tratamiento" class="form-control" rows="3"></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar Historia Clínica</button>
+            <a href="{{ url_for('main.veterinario_panel') }}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}

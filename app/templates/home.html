@@ -2,56 +2,698 @@
 {% block title %}Inicio – Veterinaria{% endblock %}
 
 {% block content %}
-<section class="hero">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+  :root {
+    --green-primary: #2d6a4f;
+    --green-secondary: #95d5b2;
+    --text-light: #f1faee;
+    --text-dark: #1b4332;
+    --bg-light: #ffffff;
+    --shadow: rgba(45, 106, 79, 0.15);
+    --transition-speed: 0.4s;
+  }
+
+  body {
+    font-family: 'Montserrat', sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    margin: 0;
+  }
+
+  /* Animación fade-in */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+  }
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Hero Section */
+  .hero {
+    position: relative;
+    padding: 160px 20px 140px;
+    text-align: center;
+    color: var(--text-light);
+    background: linear-gradient(180deg, rgba(45,106,79,0.85) 0%, rgba(21,32,23,0.85) 100%), 
+      url('https://images.unsplash.com/photo-1507146426996-ef05306b995a?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') no-repeat center/cover;
+  }
+
+  .hero h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    text-shadow: 0 3px 8px rgba(0,0,0,0.6);
+    letter-spacing: -0.02em;
+  }
+
+  .hero p.lead {
+    font-size: 1.5rem;
+    margin-bottom: 2.5rem;
+    font-weight: 500;
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .btn-cta {
+    background-color: var(--green-secondary);
+    color: var(--green-primary);
+    font-weight: 700;
+    padding: 16px 48px;
+    border-radius: 50px;
+    border: none;
+    font-size: 1.25rem;
+    cursor: pointer;
+    box-shadow: 0 8px 25px var(--shadow);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    transform: translateY(0);
+  }
+
+  .btn-cta svg {
+    width: 24px;
+    height: 24px;
+    fill: var(--green-primary);
+    transition: transform 0.3s ease;
+  }
+
+  .btn-cta:hover, .btn-cta:focus {
+    background-color: var(--green-primary);
+    color: var(--text-light);
+    transform: translateY(-6px);
+    box-shadow: 0 14px 40px rgba(45,106,79,0.45);
+    outline: none;
+  }
+
+  .btn-cta:hover svg, .btn-cta:focus svg {
+    transform: translateX(8px);
+    fill: var(--text-light);
+  }
+
+  /* Servicios Section */
+  #servicios {
+    padding: 100px 20px 120px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  #servicios h2 {
+    font-weight: 700;
+    font-size: 3.25rem;
+    margin-bottom: 4rem;
+    color: var(--green-primary);
+    text-align: center;
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  #servicios h2::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 6px;
+    background: var(--green-secondary);
+    border-radius: 3px;
+  }
+
+  .row.g-4 {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.5rem;
+    justify-content: center;
+    margin: 0 -10px;
+  }
+
+  .card {
+    background: var(--bg-light);
+    border-radius: 20px;
+    box-shadow: 0 12px 32px var(--shadow);
+    flex: 1 1 320px;
+    max-width: 350px;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: default;
+    user-select: none;
+    border: 1px solid rgba(45, 106, 79, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--green-primary), var(--green-secondary));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .card:hover, .card:focus-within {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 50px rgba(45,106,79,0.3);
+    outline: none;
+    border-color: rgba(45, 106, 79, 0.2);
+  }
+
+  .card:hover::before, .card:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .card i {
+    font-size: 3.5rem;
+    color: var(--green-primary);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover i, .card:focus-within i {
+    transform: scale(1.1);
+  }
+
+  .card h5 {
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--green-primary);
+    transition: color 0.3s ease;
+  }
+
+  .card p {
+    font-size: 1.1rem;
+    color: #444;
+    line-height: 1.6;
+    transition: color 0.3s ease;
+  }
+
+  /* Sección ¿Por qué elegirnos? */
+  #porque {
+    background-color: var(--green-secondary);
+    padding: 100px 20px 120px;
+    color: var(--green-primary);
+    text-align: center;
+  }
+
+  #porque h2 {
+    font-weight: 700;
+    font-size: 3.25rem;
+    margin-bottom: 4rem;
+    position: relative;
+    display: inline-block;
+  }
+
+  #porque h2::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 6px;
+    background: var(--green-primary);
+    border-radius: 3px;
+  }
+
+  .features {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .feature {
+    background: var(--bg-light);
+    border-radius: 20px;
+    padding: 2.5rem;
+    flex: 1 1 320px;
+    box-shadow: 0 12px 32px var(--shadow);
+    color: var(--green-primary);
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(45, 106, 79, 0.1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .feature::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--green-primary), var(--green-secondary));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+
+  .feature:hover, .feature:focus-within {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 50px rgba(45,106,79,0.3);
+    outline: none;
+    border-color: rgba(45, 106, 79, 0.2);
+  }
+
+  .feature:hover::before, .feature:focus-within::before {
+    transform: scaleX(1);
+  }
+
+  .feature svg {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1.5rem;
+    fill: var(--green-primary);
+    transition: transform 0.3s ease;
+  }
+
+  .feature:hover svg, .feature:focus-within svg {
+    transform: scale(1.1);
+  }
+
+  .feature h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .feature p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #2f4f3f;
+  }
+
+  /* Testimonios */
+  #testimonios {
+    padding: 100px 20px 120px;
+    max-width: 1000px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  #testimonios h2 {
+    font-weight: 700;
+    font-size: 3.25rem;
+    margin-bottom: 4rem;
+    color: var(--green-primary);
+    position: relative;
+    display: inline-block;
+  }
+
+  #testimonios h2::after {
+    content: '';
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 6px;
+    background: var(--green-secondary);
+    border-radius: 3px;
+  }
+
+  .testimonial {
+    background: var(--bg-light);
+    border-radius: 20px;
+    padding: 2.5rem 3rem;
+    box-shadow: 0 12px 32px var(--shadow);
+    margin-bottom: 2.5rem;
+    font-style: italic;
+    color: #3a5a40;
+    position: relative;
+    border: 1px solid rgba(45, 106, 79, 0.1);
+    transition: all 0.4s ease;
+  }
+
+  .testimonial:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 18px 45px rgba(45,106,79,0.25);
+    border-color: rgba(45, 106, 79, 0.2);
+  }
+
+  .testimonial::before {
+    content: "“";
+    font-size: 5rem;
+    color: var(--green-secondary);
+    position: absolute;
+    top: 15px;
+    left: 25px;
+    font-weight: 700;
+    opacity: 0.6;
+  }
+
+  .testimonial p {
+    margin: 0;
+    padding-left: 2rem;
+    font-size: 1.2rem;
+    line-height: 1.7;
+  }
+
+  .testimonial-footer {
+    margin-top: 1.5rem;
+    font-weight: 700;
+    color: var(--green-primary);
+    text-align: right;
+    font-size: 1.1rem;
+  }
+
+  /* Botón iniciar sesión */
+  .btn-outline-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 700;
+    padding: 14px 42px;
+    border-radius: 50px;
+    border: 3px solid var(--green-primary);
+    color: var(--green-primary);
+    font-size: 1.25rem;
+    background: transparent;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    cursor: pointer;
+    text-decoration: none;
+    margin-top: 3.5rem;
+    box-shadow: 0 6px 20px var(--shadow);
+    transform: translateY(0);
+  }
+
+  .btn-outline-primary i {
+    font-size: 1.5rem;
+  }
+
+  .btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--green-primary);
+    color: var(--text-light);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(45,106,79,0.4);
+    outline: none;
+  }
+
+  /* Footer */
+  footer {
+    background-color: var(--green-primary);
+    color: var(--text-light);
+    padding: 60px 20px 40px;
+    text-align: center;
+    font-size: 1rem;
+  }
+
+  footer h3 {
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
+    font-weight: 700;
+  }
+
+  footer p {
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .footer-links {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-links a {
+    color: var(--green-secondary);
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: color 0.3s ease, transform 0.3s ease;
+  }
+
+  .footer-links a:hover, .footer-links a:focus {
+    color: var(--text-light);
+    transform: translateY(-2px);
+    outline: none;
+  }
+
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .social-icons a {
+    color: var(--green-secondary);
+    font-size: 1.5rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+  }
+
+  .social-icons a:hover, .social-icons a:focus {
+    background: var(--green-primary);
+    color: var(--text-light);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    outline: none;
+  }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding-top: 2rem;
+    margin-top: 2rem;
+  }
+
+  /* Responsive */
+  @media (max-width: 992px) {
+    .hero h1 {
+      font-size: 3rem;
+    }
+    
+    .hero p.lead {
+      font-size: 1.25rem;
+    }
+    
+    .features {
+      flex-direction: column;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .row.g-4 {
+      flex-direction: column;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    #servicios h2, #porque h2, #testimonios h2 {
+      font-size: 2.5rem;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .hero {
+      padding: 120px 20px 100px;
+    }
+    
+    .hero h1 {
+      font-size: 2.5rem;
+    }
+    
+    .hero p.lead {
+      font-size: 1.1rem;
+    }
+    
+    #servicios, #porque, #testimonios {
+      padding: 80px 20px;
+    }
+    
+    #servicios h2, #porque h2, #testimonios h2 {
+      font-size: 2.2rem;
+    }
+    
+    .btn-cta, .btn-outline-primary {
+      width: 100%;
+      font-size: 1.1rem;
+      padding: 14px 20px;
+    }
+    
+    .testimonial p {
+      font-size: 1.1rem;
+    }
+    
+    .footer-links {
+      gap: 1rem;
+      flex-direction: column;
+      align-items: center;
+    }
+    
+    .social-icons {
+      gap: 1rem;
+    }
+  }
+</style>
+
+<section class="hero fade-in" aria-label="Imagen principal con mensaje de bienvenida">
   <div class="container">
-    <h1 class="display-5 fw-bold">Cuidamos de tus Mascotas</h1>
+    <h1>Cuidamos de tus Mascotas</h1>
     <p class="lead">Atención con amor, dedicación y profesionalismo.</p>
     {% if not current_user.is_authenticated %}
-      <a href="{{ url_for('auth.register') }}" class="btn btn-cta mt-2">Reserva una Cita</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-cta" role="button" aria-label="Reserva una cita">
+        Reserva una Cita
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M13.172 12l-4.95-4.95 1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/>
+        </svg>
+      </a>
     {% else %}
-      <a href="{{ url_for('main.dashboard') }}" class="btn btn-cta mt-2">Ir a mi Panel</a>
-    {% endif %}
-  </div>
-</section>
-
-<section id="servicios" class="py-5">
-  <div class="container text-center">
-    <h2 class="mb-4">Servicios Destacados</h2>
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0">
-          <div class="card-body">
-            <i class="fa-solid fa-stethoscope"></i>
-            <h5 class="mt-2">Consultas Generales</h5>
-            <p>Preventivo, diagnóstico y seguimiento.</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0">
-          <div class="card-body">
-            <i class="fa-solid fa-syringe"></i>
-            <h5 class="mt-2">Vacunación</h5>
-            <p>Esquemas al día para perros y gatos.</p>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-0">
-          <div class="card-body">
-            <i class="fa-solid fa-bone"></i>
-            <h5 class="mt-2">Nutrición</h5>
-            <p>Planes alimenticios según etapa de vida.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    {% if not current_user.is_authenticated %}
-      <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary mt-4">
-        <i class="fa-solid fa-user"></i> Iniciar Sesión
+      <a href="{{ url_for('main.dashboard') }}" class="btn btn-cta" role="button" aria-label="Ir a mi panel">
+        Ir a mi Panel
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M13.172 12l-4.95-4.95 1.414-1.414L16 12l-6.364 6.364-1.414-1.414z"/>
+        </svg>
       </a>
     {% endif %}
   </div>
 </section>
+
+<section id="servicios" aria-labelledby="servicios-title" class="fade-in">
+  <h2 id="servicios-title">Servicios Destacados</h2>
+  <div class="row g-4">
+    <div class="card" tabindex="0" aria-label="Consultas Generales: Preventivo, diagnóstico y seguimiento">
+      <i class="fa-solid fa-stethoscope" aria-hidden="true"></i>
+      <h5>Consultas Generales</h5>
+      <p>Preventivo, diagnóstico y seguimiento para mantener a tu mascota en óptimas condiciones de salud.</p>
+    </div>
+    <div class="card" tabindex="0" aria-label="Vacunación: Esquemas al día para perros y gatos">
+      <i class="fa-solid fa-syringe" aria-hidden="true"></i>
+      <h5>Vacunación</h5>
+      <p>Esquemas al día para perros y gatos, protegiendo a tu mascota contra enfermedades comunes.</p>
+    </div>
+    <div class="card" tabindex="0" aria-label="Nutrición: Planes alimenticios según etapa de vida">
+      <i class="fa-solid fa-bone" aria-hidden="true"></i>
+      <h5>Nutrición</h5>
+      <p>Planes alimenticios personalizados según etapa de vida, raza y necesidades específicas.</p>
+    </div>
+  </div>
+
+  {% if not current_user.is_authenticated %}
+    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary" role="button" aria-label="Iniciar sesión">
+      <i class="fa-solid fa-user" aria-hidden="true"></i> Iniciar Sesión
+    </a>
+  {% endif %}
+</section>
+
+<section id="porque" aria-labelledby="porque-title" class="fade-in">
+  <h2 id="porque-title">¿Por qué elegirnos?</h2>
+  <div class="features">
+    <article class="feature" tabindex="0">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" role="img" aria-label="Icono profesionalismo">
+        <path fill="var(--green-primary)" d="M32 2a30 30 0 1 0 30 30A30.034 30.034 0 0 0 32 2zm0 56a26 26 0 1 1 26-26 26.03 26.03 0 0 1-26 26z"/>
+        <path fill="var(--green-primary)" d="M44 20H20v4h24zM44 28H20v4h24zM44 36H20v4h24z"/>
+      </svg>
+      <h3>Profesionalismo</h3>
+      <p>Equipo altamente capacitado y comprometido con la salud de tus mascotas.</p>
+    </article>
+    <article class="feature" tabindex="0">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" role="img" aria-label="Icono atención personalizada">
+        <circle cx="32" cy="32" r="30" fill="var(--green-primary)"/>
+        <path fill="var(--green-secondary)" d="M32 12a20 20 0 1 0 20 20A20.023 20.023 0 0 0 32 12zm0 36a16 16 0 1 1 16-16 16.018 16.018 0 0 1-16 16z"/>
+      </svg>
+      <h3>Atención Personalizada</h3>
+      <p>Tratamos a cada mascota con el cuidado y cariño que merece.</p>
+    </article>
+    <article class="feature" tabindex="0">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false" role="img" aria-label="Icono instalaciones modernas">
+        <path fill="var(--green-primary)" d="M32 2a30 30 0 1 0 30 30A30.034 30.034 0 0 0 32 2zm0 56a26 26 0 1 1 26-26 26.03 26.03 0 0 1-26 26z"/>
+        <path fill="var(--green-secondary)" d="M44 20H20v4h24zM44 28H20v4h24zM44 36H20v4h24z"/>
+      </svg>
+      <h3>Instalaciones Modernas</h3>
+      <p>Equipamiento de última generación para diagnósticos y tratamientos efectivos.</p>
+    </article>
+  </div>
+</section>
+
+<section id="testimonios" aria-labelledby="testimonios-title" class="fade-in">
+  <h2 id="testimonios-title">Testimonios</h2>
+  <article class="testimonial" tabindex="0">
+    <p>“El equipo de la veterinaria siempre ha cuidado a mi perro con mucho amor y profesionalismo. ¡Recomendados 100%!”</p>
+    <footer class="testimonial-footer">- Ana G.</footer>
+  </article>
+  <article class="testimonial" tabindex="0">
+    <p>“Excelente atención y servicio. Mi gato recibió un tratamiento impecable y ahora está mucho mejor.”</p>
+    <footer class="testimonial-footer">- Carlos M.</footer>
+  </article>
+</section>
+
+<footer>
+  <h3>Vida Animal Veterinaria</h3>
+  <p>Brindando atención veterinaria de calidad con amor y profesionalismo desde hace más de 15 años.</p>
+  
+  <div class="footer-links">
+    <a href="#" aria-label="Inicio">Inicio</a>
+    <a href="#" aria-label="Servicios">Servicios</a>
+    <a href="#" aria-label="Sobre Nosotros">Sobre Nosotros</a>
+    <a href="#" aria-label="Contacto">Contacto</a>
+  </div>
+  
+  <div class="social-icons">
+    <a href="#" aria-label="Facebook" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+    <a href="#" aria-label="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
+    <a href="#" aria-label="Twitter" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+    <a href="#" aria-label="WhatsApp" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i></a>
+  </div>
+  
+  <div class="footer-bottom">
+    <p>© 2024 Vida Animal Veterinaria. Todos los derechos reservados.</p>
+    <p>Teléfono: (555) 123-4567 | Email: info@vidaanimal.com</p>
+  </div>
+</footer>
+
+<script>
+  // Animar fade-in al hacer scroll
+  function onEntry(entry) {
+    entry.forEach(change => {
+      if (change.isIntersecting) {
+        change.target.classList.add('visible');
+      }
+    });
+  }
+  let options = { threshold: [0.1] };
+  let observer = new IntersectionObserver(onEntry, options);
+  let elements = document.querySelectorAll('.fade-in');
+  for (let elm of elements) {
+    observer.observe(elm);
+  }
+  
+  // Añadir efecto de parallax suave al hero
+  window.addEventListener('scroll', function() {
+    const hero = document.querySelector('.hero');
+    const scrolled = window.pageYOffset;
+    if (hero) {
+      hero.style.backgroundPositionY = scrolled * 0.5 + 'px';
+    }
+  });
+</script>
 {% endblock %}

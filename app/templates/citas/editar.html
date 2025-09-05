@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>✏️ Editar Cita - {{ cita.mascota.nombre }}</h2>
+
+    <form method="POST" action="{{ url_for('citas.actualizar_cita', id_cita=cita.id_cita) }}">
+        <div class="mb-3">
+            <label for="fecha" class="form-label">Fecha</label>
+            <input type="date" name="fecha" id="fecha" class="form-control" value="{{ cita.fecha.strftime('%Y-%m-%d') }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="hora" class="form-label">Hora</label>
+            <input type="time" name="hora" id="hora" class="form-control" value="{{ cita.hora.strftime('%H:%M') }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label for="id_mascota" class="form-label">Mascota</label>
+            <select name="id_mascota" id="id_mascota" class="form-control" required>
+                {% for mascota in mascotas %}
+                    <option value="{{ mascota.id_mascota }}" {% if mascota.id_mascota == cita.id_mascota %}selected{% endif %}>
+                        {{ mascota.nombre }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label for="motivo" class="form-label">Motivo</label>
+            <textarea name="motivo" id="motivo" class="form-control" rows="3">{{ cita.motivo }}</textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Actualizar Cita</button>
+        <a href="{{ url_for('citas.listar_citas') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}

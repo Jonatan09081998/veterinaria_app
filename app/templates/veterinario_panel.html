@@ -1,6 +1,59 @@
 {% extends "base.html" %}
+
 {% block title %}Panel Veterinario{% endblock %}
+
 {% block content %}
-<h1 class="text-2xl font-bold">Bienvenido Veterinario {{ current_user.nombre }}</h1>
-<p>Este es tu panel de veterinario.</p>
+<div class="container mt-4">
+    <div class="card p-4 shadow-sm">
+        <h1 class="h3">👋 Bienvenido, Dr. {{ current_user.nombre }}</h1>
+        <p class="text-muted">Gestiona tus citas y crea historias clínicas</p>
+    </div>
+
+    <!-- Próximas Citas -->
+    <div class="card mt-4 p-4">
+        <h2 class="h4">📅 Próximas Citas</h2>
+        {% if citas %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>fecha</th>
+                        <th>Hora</th>
+                        <th>Mascota</th>
+                        <th>Dueño</th>
+                        <th>Motivo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                    <tr>
+                        <td>{{ cita.fecha.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ cita.hora.strftime('%H:%M') }}</td>
+                        <td>{{ cita.mascota.nombre }}</td>
+                        <td>{{ cita.mascota.usuario.nombre }}</td>
+                        <td>{{ cita.motivo or 'Sin motivo' }}</td>
+                        <td>
+                            <a href="{{ url_for('historia.atender_cita', id_cita=cita.id_cita) }}" class="btn btn-sm btn-success">
+                                <i class="bi bi-check-circle"></i> Atender
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-info">No tienes citas pendientes.</div>
+        {% endif %}
+    </div>
+
+    <!-- Recetas Recientes -->
+    <div class="card mt-4 p-4">
+        <h2 class="h4">📄 Últimas Recetas</h2>
+        <ul class="list-group">
+            <li class="list-group-item">Firulais - Antiinflamatorio (hace 2 días)</li>
+            <li class="list-group-item">Michi - Antipulgas (hace 1 día)</li>
+            <li class="list-group-item">Toby - Antibiótico (hoy)</li>
+        </ul>
+    </div>
+</div>
 {% endblock %}

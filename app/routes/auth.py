@@ -16,7 +16,6 @@ def login():
         usuario = Usuario.query.filter_by(email=email).first()
         if usuario and check_password_hash(usuario.contraseña, password):
             login_user(usuario)
-            # Redirección por rol
             if usuario.rol == "admin":
                 return redirect(url_for("main.admin_panel"))
             elif usuario.rol == "veterinario":
@@ -32,10 +31,20 @@ def register():
     if request.method == "POST":
         nombre = request.form.get("nombre")
         email = request.form.get("email")
-        password = request.form.get("password")
+        contraseña = request.form.get("contraseña")  # ✅ Nombre corregido
+        confirm_password = request.form.get("confirm_password")  # Añadido para validar
         rol = request.form.get("rol") or "usuario"
         telefono = request.form.get("telefono") or ""
         direccion = request.form.get("direccion") or ""
+
+        # Validar que la contraseña no sea None
+        if not contraseña:
+            flash("❌ La contraseña es obligatoria.", "error")
+            return redirect(url_for("auth.register"))
+
+        if contraseña != confirm_password:
+            flash("❌ Las contraseñas no coinciden.", "error")
+            return redirect(url_for("auth.register"))
 
         if Usuario.query.filter_by(email=email).first():
             flash("El correo ya está registrado", "error")
@@ -44,7 +53,7 @@ def register():
         nuevo_usuario = Usuario(
             nombre=nombre,
             email=email,
-            contraseña=generate_password_hash(password),
+            contraseña=generate_password_hash(contraseña),  # ✅ Ahora no es None
             rol=rol,
             telefono=telefono,
             direccion=direccion

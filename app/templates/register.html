@@ -1,63 +1,230 @@
-{% extends "base_public.html" %}
+{% extends "base.html" %}
+
 {% block title %}Registro – Veterinaria{% endblock %}
+
+{# 🔹 Ocultar la navbar completamente #}
+{% block navbar %}{% endblock %}
+
+{# 🔹 Ocultar el footer también #}
+{% block footer %}{% endblock %}
+
 {% block content %}
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-md-7 col-lg-6">
-      <div class="card shadow-sm border-0">
-        <div class="card-body p-4">
-          <h4 class="mb-3 text-center">Crear cuenta</h4>
 
-          {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-              {% for cat, msg in messages %}
-                <div class="alert alert-{{ 'danger' if cat=='error' else cat }} mb-3">{{ msg }}</div>
-              {% endfor %}
-            {% endif %}
-          {% endwith %}
+<style>
+  .register-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2d6a4f 0%, #40916c 25%, #52b788 50%, #74c69d 75%, #95d5b2 100%);
+    position: relative;
+    overflow: hidden;
+  }
 
-          <form method="POST">
-            <div class="row g-3">
-              <div class="col-md-6">
-                <label class="form-label">Nombre</label>
-                <input type="text" name="nombre" class="form-control" required>
+  .register-container::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: url('data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxIQEhUTEBIWFRUWGBYbFxcXGBgYFxsZGhYXHRgZHRoYHRoYHSggHR0mHRgZITEhKCkrLi4uGB8zODMtNygtLisBCgoKDg0OGxAQGzUmICY1Ky01LTIrLi4rLS0tLS0vLS0tLS0tLS8tLy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAJoBRwMBIgACEQEDEQH/xAAcAAEAAgMBAQEAAAAAAAAAAAAABQYBBAcDAgj/xAA/EAABBAAEAwYEBAUBBwUAAAABAAIDEQQSITEFBkETIlFhcYEHMpGhFEKxwSNSYtHwonKSsrPC4fEXJDNDU//EABkBAQADAQEAAAAAAAAAAAAAAAABAgMEBf/EACMRAAICAgICAgMBAAAAAAAAAAABAhEDIRIxBCJBURMyYRT/2gAMAwEAAhEDEQA/AO4oiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIAiIgCIiAIiIA......') no-repeat center center;
+    background-size: cover;
+    opacity: 0.1;
+    z-index: 1;
+  }
+
+  .register-form {
+    position: relative;
+    z-index: 2;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .register-header {
+    background: linear-gradient(135deg, #2d6a4f, #40916c);
+    color: white;
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .register-header h4 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .register-body { padding: 2.5rem; }
+
+  .form-label {
+    font-weight: 600;
+    color: #1b4332;
+    margin-bottom: 0.5rem;
+  }
+
+  .form-control {
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .form-control:focus {
+    border-color: #2d6a4f;
+    box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+    outline: none;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #2d6a4f, #40916c);
+    border: none;
+    color: white;
+    font-weight: 600;
+    padding: 14px 0;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 15px rgba(45, 106, 79, 0.3);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #1b4332, #2d6a4f);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(45, 106, 79, 0.4);
+  }
+
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    margin-top: 1rem;
+    background: #adb5bd;
+    border: none;
+    color: #212529;
+    font-weight: 600;
+    padding: 12px 0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .btn-secondary:hover {
+    background: #6c757d;
+    color: white;
+  }
+
+  .register-footer {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .register-footer p { color: #1b4332; margin-bottom: 0; }
+
+  .register-footer a {
+    color: #2d6a4f;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .register-footer a:hover { color: #1b4332; text-decoration: underline; }
+
+  .alert {
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+
+  .alert-danger { background: #fee2e2; border: 1px solid #fecaca; color: #dc2626; }
+  .alert-success { background: #dcfce7; border: 1px solid #a7f3d0; color: #16a34a; }
+
+  @media (max-width: 768px) {
+    .register-body { padding: 2rem; }
+    .register-header { padding: 1.5rem; }
+    .register-header h4 { font-size: 1.75rem; }
+  }
+</style>
+
+<div class="register-container">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-6">
+        <div class="card register-form">
+          <div class="card-header register-header">
+            <h4>Registro</h4>
+          </div>
+          <div class="card-body register-body">
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                {% for cat, msg in messages %}
+                  <div class="alert alert-{{ 'danger' if cat=='error' else cat }}">
+                    {{ msg }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+              <!-- Campo: Nombre completo -->
+              <div class="mb-4">
+                <label class="form-label">Nombre completo</label>
+                <input type="text" name="nombre" class="form-control" placeholder="Tu nombre" required>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Teléfono</label>
-                <input type="text" name="telefono" class="form-control">
-              </div>
-              <div class="col-12">
+
+              <!-- Campo: Correo electrónico -->
+              <div class="mb-4">
                 <label class="form-label">Correo electrónico</label>
-                <input type="email" name="email" class="form-control" required>
+                <input type="email" name="email" class="form-control" placeholder="tu@email.com" required>
               </div>
-              <div class="col-12">
-                <label class="form-label">Dirección</label>
-                <input type="text" name="direccion" class="form-control">
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Rol</label>
-                <select name="rol" class="form-select" required>
-                  <option value="usuario">Usuario</option>
-                  <option value="veterinario">Veterinario</option>
-                  <option value="admin">Administrador</option>
-                </select>
-              </div>
-              <div class="col-md-6">
+
+              <!-- Campo: Contraseña -->
+              <div class="mb-4">
                 <label class="form-label">Contraseña</label>
-                <input type="password" name="password" class="form-control" required>
+                <input type="password" name="contraseña" class="form-control" placeholder="••••••••" required>
               </div>
-            </div>
 
-            <button class="btn btn-success w-100 mt-3">Registrarme</button>
-          </form>
+              <!-- Campo: Confirmar contraseña -->
+              <div class="mb-4">
+                <label class="form-label">Confirmar contraseña</label>
+                <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" required>
+              </div>
 
-          <p class="mt-3 text-center">
-            ¿Ya tienes cuenta?
-            <a href="{{ url_for('auth.login') }}">Inicia sesión</a>
-          </p>
+              <!-- Campo oculto: Rol (por defecto 'usuario') -->
+              <input type="hidden" name="rol" value="usuario">
+
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-person-plus"></i> Registrarse
+              </button>
+            </form>
+
+            <a href="{{ url_for('main.home') }}" class="btn btn-secondary">
+              Volver a inicio
+            </a>
+
+          </div>
+          <div class="register-footer">
+            <p>
+              ¿Ya tienes una cuenta?
+              <a href="{{ url_for('auth.login') }}">Inicia sesión aquí</a>
+            </p>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
 {% endblock %}
