@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Historia Clínica de {{ mascota.nombre }}</h2>
+    
+    {% if historias %}
+        {% for historia in historias %}
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5>{{ historia.fecha.strftime('%d/%m/%Y') }} - {{ historia.motivo_consulta[:30] }}...</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Síntomas:</strong> {{ historia.sintomas }}</p>
+                <p><strong>Diagnóstico:</strong> {{ historia.diagnostico }}</p>
+                <p><strong>Observaciones:</strong> {{ historia.observaciones }}</p>
+                <p><strong>Veterinario:</strong> {{ historia.veterinario.nombre }}</p>
+                
+                {% if historia.recetas %}
+                <div class="mt-3">
+                    <h6>Recetas:</h6>
+                    <ul>
+                        {% for receta in historia.recetas %}
+                        <li>
+                            <a href="{{ url_for('receta.descargar_pdf', id_receta=receta.id_receta) }}" class="btn btn-sm btn-success">
+                                Descargar receta (PDF)
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No hay historial clínico para esta mascota.</div>
+    {% endif %}
+    
+    <a href="{{ url_for('mascotas.index') }}" class="btn btn-secondary">Volver a Mis Mascotas</a>
+</div>
+{% endblock %}

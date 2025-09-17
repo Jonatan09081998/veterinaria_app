@@ -6,6 +6,7 @@ from app.models.cita import Cita   # 👈 asegúrate de tener este modelo
 from flask_login import login_required, current_user
 from datetime import datetime
 from app.decorators import rol_requerido
+
 historia_bp = Blueprint("historia", __name__, url_prefix="/historia")
 
 # 📌 Listar historias de una mascota
@@ -21,7 +22,22 @@ def listar(id_mascota):
 
     historias = HistoriaClinica.query.filter_by(id_mascota=id_mascota).all()
     return render_template("historia/listar.html", mascota=mascota, historias=historias)
-
+    historia_bp = Blueprint('historia', __name__, url_prefix='/historia')
+    
+    
+    
+@historia_bp.route('/historial/<int:id_mascota>')
+@login_required
+def historial(id_mascota):
+    mascota = Mascota.query.get_or_404(id_mascota)
+    
+    # Verificar permisos
+    if current_user.rol == 'usuario' and mascota.id_usuario != current_user.id_usuario:
+        flash('No tienes permiso para ver esta historia clínica', 'error')
+        return redirect(url_for('main.dashboard'))
+    
+    historias = HistoriaClinica.query.filter_by(id_mascota=id_mascota).order_by(HistoriaClinica.fecha.desc()).all()
+    return render_template('historia/historial.html', mascota=mascota, historias=historias)   
 
 # 📌 Crear historia clínica
 @historia_bp.route("/crear/<int:id_mascota>", methods=["GET", "POST"])

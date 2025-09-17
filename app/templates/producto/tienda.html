@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Tienda de Productos{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <h1 class="mb-4">🛍️ Tienda de Productos</h1>
+    
+    {% if productos|length == 0 %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> No hay productos disponibles en este momento.
+        </div>
+    {% else %}
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            {% for producto in productos %}
+            <div class="col">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        {% if producto.imagen %}
+            <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" 
+                 class="img-fluid mb-3" 
+                 alt="{{ producto.nombre }}"
+                 style="max-height: 200px; object-fit: cover;">
+        {% else %}
+            <div class="text-center text-muted">Sin imagen</div>
+        {% endif %}
+                        <h5 class="card-title">{{ producto.nombre }}</h5>
+                        <p class="card-text text-muted">{{ producto.descripcion[:100] }}{% if producto.descripcion|length > 100 %}...{% endif %}</p>
+                        <div class="mt-auto">
+                            <p class="card-text">
+                                <strong>Precio:</strong> ${{ "%.2f"|format(producto.precio|float) }}
+                            </p>
+                            <p class="card-text">
+                                <strong>Stock:</strong> {{ producto.stock }} unidades
+                            </p>
+                            
+                            <!-- ✅ FORMULARIO DENTRO DEL FOR - producto SÍ está definido aquí -->
+                            <form method="POST" action="{{ url_for('carrito.agregar', id_producto=producto.id_producto) }}" class="mt-3">
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text">Cantidad</span>
+                                    <input 
+                                        type="number" 
+                                        name="cantidad" 
+                                        value="1" 
+                                        min="1" 
+                                        max="{{ producto.stock }}" 
+                                        class="form-control"
+                                        required
+                                    >
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-cart-plus"></i> Agregar al carrito
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -12,8 +12,11 @@ class Mascota(db.Model):
     fecha_nacimiento = db.Column(db.Date)
     id_usuario = db.Column(db.Integer, db.ForeignKey("usuarios.id_usuario"), nullable=False)
 
-    usuario = db.relationship("Usuario", back_populates="mascotas")
-
+    
+    usuario = db.relationship('Usuario', back_populates='mascotas')
+    historia_clinica = db.relationship('HistoriaClinica', back_populates='mascota', uselist=False)
+    citas = db.relationship('Cita', back_populates='mascota')
+    
     # 🔹 Método para calcular la edad automáticamente
     @property
     def edad(self):

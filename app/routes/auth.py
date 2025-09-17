@@ -16,14 +16,16 @@ def login():
         usuario = Usuario.query.filter_by(email=email).first()
         if usuario and check_password_hash(usuario.contraseña, password):
             login_user(usuario)
+            
+            # ✅ CORRECCIÓN CRÍTICA: Usa el formato CORRECTO con el blueprint "main"
             if usuario.rol == "admin":
                 return redirect(url_for("main.admin_panel"))
             elif usuario.rol == "veterinario":
                 return redirect(url_for("main.veterinario_panel"))
             else:
                 return redirect(url_for("main.dashboard"))
-        else:
-            flash("Correo o contraseña incorrectos", "error")
+        
+        flash("Correo o contraseña incorrectos", "error")
     return render_template("login.html")
 
 @auth_bp.route("/register", methods=["GET", "POST"])

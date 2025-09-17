@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📄 Detalle de Factura #{{ factura.id_factura }}</h2>
+    <p><strong>Fecha:</strong> {{ factura.fecha.strftime('%d/%m/%Y') }}</p>
+    <p><strong>Estado:</strong> {{ factura.estado }}</p>
+    <p><strong>Total:</strong> ${{ "%.2f"|format(factura.total) }}</p>
+
+    <h3 class="mt-4">Productos:</h3>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in factura.detalles %}
+            <tr>
+                <td>{{ detalle.producto.nombre }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>${{ "%.2f"|format(detalle.precio_unitario) }}</td>
+                <td>${{ "%.2f"|format(detalle.cantidad * detalle.precio_unitario) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <th colspan="3">Total</th>
+                <th>${{ "%.2f"|format(factura.total) }}</th>
+            </tr>
+        </tfoot>
+    </table>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{{ url_for('carrito.ver') }}" class="btn btn-secondary">Volver al carrito</a>
+        <a href="{{ url_for('factura.descargar_pdf', id_factura=factura.id_factura) }}" class="btn btn-primary">Descargar PDF</a>
+    </div>
+</div>
+{% endblock %}

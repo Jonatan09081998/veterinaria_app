@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>🩺 Crear Receta para {{ mascota.nombre }}</h2>
+    
+    <form method="POST">
+        <div class="mb-3">
+            <label for="motivo_consulta" class="form-label">Motivo de Consulta</label>
+            <textarea class="form-control" id="motivo_consulta" name="motivo_consulta" rows="2" required></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="sintomas" class="form-label">Síntomas</label>
+            <textarea class="form-control" id="sintomas" name="sintomas" rows="3"></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="diagnostico" class="form-label">Diagnóstico</label>
+            <textarea class="form-control" id="diagnostico" name="diagnostico" rows="3" required></textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="observaciones" class="form-label">Observaciones</label>
+            <textarea class="form-control" id="observaciones" name="observaciones" rows="3"></textarea>
+        </div>
+        
+        <h4 class="mt-4">Medicamentos</h4>
+        <div id="medicamentos-container">
+            <div class="medicamento-item mb-3 p-3 border rounded">
+                <div class="row">
+                    <div class="col-md-4">
+                        <select class="form-select medicamento-select" name="medicamento_id">
+                            <option value="">Seleccionar medicamento</option>
+                            {% for medicamento in medicamentos %}
+                            <option value="{{ medicamento.id_producto }}">{{ medicamento.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <input type="number" class="form-control" name="cantidad" min="1" value="1">
+                    </div>
+                    <div class="col-md-5">
+                        <input type="text" class="form-control" name="indicaciones" placeholder="Indicaciones">
+                    </div>
+                    <div class="col-md-1 d-flex align-items-center">
+                        <button type="button" class="btn btn-danger remove-medicamento">-</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <button type="button" id="add-medicamento" class="btn btn-secondary mb-3">+ Agregar otro medicamento</button>
+        
+        <button type="submit" class="btn btn-primary">Guardar Receta</button>
+        <a href="{{ url_for('main.veterinario_panel') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('medicamentos-container');
+    const addButton = document.getElementById('add-medicamento');
+    
+    addButton.addEventListener('click', function() {
+        const newItem = document.createElement('div');
+        newItem.className = 'medicamento-item mb-3 p-3 border rounded';
+        newItem.innerHTML = `
+            <div class="row">
+                <div class="col-md-4">
+                    <select class="form-select medicamento-select" name="medicamento_id">
+                        <option value="">Seleccionar medicamento</option>
+                        {% for medicamento in medicamentos %}
+                        <option value="{{ medicamento.id_producto }}">{{ medicamento.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="number" class="form-control" name="cantidad" min="1" value="1">
+                </div>
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="indicaciones" placeholder="Indicaciones">
+                </div>
+                <div class="col-md-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-danger remove-medicamento">-</button>
+                </div>
+            </div>
+        `;
+        container.appendChild(newItem);
+    });
+    
+    // Manejar eliminación de medicamentos
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('remove-medicamento')) {
+            const item = e.target.closest('.medicamento-item');
+            if (item) {
+                item.remove();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

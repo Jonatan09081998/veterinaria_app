@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>🛒 Mi Carrito</h2>
+    
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Total</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.producto.nombre }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ item.producto.precio }}</td>
+                <td>${{ item.cantidad * item.producto.precio }}</td>
+                <td>
+                    <!-- CORREGIDO: Usa id_item (nombre exacto del campo en el modelo) -->
+                    <form action="{{ url_for('carrito.eliminar', id_item=item.id_item) }}" method="POST">
+                        <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td colspan="3"><strong>Total</strong></td>
+                <td><strong>${{ total }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <a href="{{ url_for('producto.tienda') }}" class="btn btn-primary">Continuar Comprando</a>
+    <form action="{{ url_for('factura.pagar') }}" method="POST" onsubmit="return confirm('¿Confirmas tu compra?')">
+        <button type="submit" class="btn btn-success float-end">Pagar</button>
+    </form>
+</div>
+{% endblock %}

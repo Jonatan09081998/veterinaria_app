@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Factura #{{ factura.id_factura }}</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px;
+            border-bottom: 2px solid #1b7c6e;
+            padding-bottom: 20px;
+        }
+        .company { 
+            font-size: 28px; 
+            font-weight: bold; 
+            color: #1b7c6e;
+        }
+        .company-info {
+            margin-top: 10px;
+            color: #555;
+        }
+        .invoice-info { 
+            text-align: right; 
+            margin-bottom: 30px;
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-bottom: 30px;
+        }
+        th, td { 
+            border: 1px solid #ddd; 
+            padding: 12px; 
+            text-align: left; 
+        }
+        th { 
+            background-color: #1b7c6e; 
+            color: white;
+        }
+        .total { 
+            font-weight: bold; 
+            text-align: right; 
+            font-size: 1.2em;
+        }
+        .footer {
+            margin-top: 50px;
+            text-align: center;
+            color: #777;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="company">Veterinaria Mi Mascota</div>
+        <div class="company-info">
+            Dirección: Calle Veterinaria 123, Ciudad<br>
+            Teléfono: (123) 456-7890 | Email: info@veterinariamimascota.com
+        </div>
+    </div>
+    
+    <div class="invoice-info">
+        <h2>Factura #{{ factura.id_factura }}</h2>
+        <p><strong>Fecha:</strong> {{ factura.fecha.strftime('%d/%m/%Y') }}</p>
+        <p><strong>Cliente:</strong> {{ current_user.nombre }}</p>
+        <p><strong>Dirección:</strong> {{ current_user.direccion }}</p>
+        <p><strong>Teléfono:</strong> {{ current_user.telefono }}</p>
+    </div>
+    
+    <h3>Productos:</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in factura.detalles %}
+            <tr>
+                <td>{{ detalle.producto.nombre }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>${{ "%.2f"|format(detalle.precio_unitario) }}</td>
+                <td>${{ "%.2f"|format(detalle.cantidad * detalle.precio_unitario) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="3" class="total">Total:</td>
+                <td class="total">${{ "%.2f"|format(factura.total) }}</td>
+            </tr>
+        </tfoot>
+    </table>
+    
+    <div class="footer">
+        <p>Gracias por su compra. Esperamos verlo de nuevo pronto.</p>
+        <p>Esta es una factura electrónica válida. No requiere sello ni firma.</p>
+    </div>
+</body>
+</html>

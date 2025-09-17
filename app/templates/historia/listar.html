@@ -7,7 +7,6 @@
     <h2 class="mb-3">Historia clínica de {{ mascota.nombre }}</h2>
 
     <div class="mb-3">
-        
         <a href="{{ url_for('mascotas.index') }}" class="btn btn-secondary">
             🔙 Volver a mascotas
         </a>
@@ -21,7 +20,8 @@
                 <th>Fecha</th>
                 <th>Diagnóstico</th>
                 <th>Tratamiento</th>
-                <th>Descripcion</th>
+                <th>Descripción</th>
+                <th>Acciones</th> <!-- Nueva columna -->
             </tr>
         </thead>
         <tbody>
@@ -32,6 +32,19 @@
                 <td>{{ h.diagnostico }}</td>
                 <td>{{ h.tratamiento }}</td>
                 <td>{{ h.descripcion }}</td>
+                <td>
+                    {% if h.recetas %}
+                        {% for receta in h.recetas %}
+                            <a href="{{ url_for('receta.descargar_pdf', id_receta=receta.id_receta) }}"
+                               class="btn btn-sm btn-success mb-1"
+                               target="_blank">
+                                📄 Descargar Receta
+                            </a><br>
+                        {% endfor %}
+                    {% else %}
+                        <small class="text-muted">Sin receta</small>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>

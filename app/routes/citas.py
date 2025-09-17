@@ -7,6 +7,8 @@ from app.models.cita import Cita
 from app.models.mascota import Mascota
 from app import db
 from datetime import datetime
+from app.models.usuario import Usuario
+
 citas_bp = Blueprint('citas', __name__, url_prefix='/citas')
 
 @citas_bp.route('/reservar', methods=['GET', 'POST'])
@@ -27,22 +29,38 @@ def reservar_cita():
             fecha = datetime.strptime(fecha_str, '%Y-%m-%d').date()
             hora = datetime.strptime(hora_str, '%H:%M').time()
 
-            existe_cita = Cita.query.filter_by(fecha=fecha, hora=hora).first()
+            # ✅ OBTÉN EL VETERINARIO CON ID 2 (el que tiene rol 'veterinario')
+            veterinario = Usuario.query.filter_by(rol='veterinario').first()
+            
+            if not veterinario:
+                flash('❌ No hay veterinarios disponibles. Contacta al administrador.', 'error')
+                return redirect(url_for('citas.reservar_cita'))
+
+            # ✅ VERIFICA QUE NO EXISTA UNA CITA PARA ESTE VETERINARIO EN ESE HORARIO
+            existe_cita = Cita.query.filter_by(
+                fecha=fecha,
+                hora=hora,
+                id_veterinario=veterinario.id_usuario
+            ).first()
+            
             if existe_cita:
                 flash('❌ Ya existe una cita en ese horario. Elige otro.', 'error')
+                mascotas = Mascota.query.filter_by(id_usuario=current_user.id_usuario).all()
                 return render_template('citas/reservar.html', mascotas=mascotas)
 
+            # ✅ CREA LA CITA CON EL VETERINARIO CORRECTO
             cita = Cita(
                 fecha=fecha,
                 hora=hora,
                 motivo=motivo,
                 id_mascota=id_mascota,
-                id_usuario=current_user.id_usuario
+                id_usuario=current_user.id_usuario,
+                id_veterinario=veterinario.id_usuario  # ✅ Asegúrate que esto esté aquí
             )
             db.session.add(cita)
             db.session.commit()
 
-            flash('✅ Cita reservada exitosamente.', 'success')
+            flash(f'✅ Cita reservada exitosamente con {veterinario.nombre}.', 'success')
             return redirect(url_for('citas.listar'))
 
         except Exception as e:
@@ -52,13 +70,15 @@ def reservar_cita():
     mascotas = Mascota.query.filter_by(id_usuario=current_user.id_usuario).order_by(Mascota.nombre).all()
     return render_template('citas/reservar.html', mascotas=mascotas)
 
+    mascotas = Mascota.query.filter_by(id_usuario=current_user.id_usuario).order_by(Mascota.nombre).all()
+    return render_template('citas/reservar.html', mascotas=mascotas)
 @citas_bp.route("/listar")
 @login_required
 def listar_citas():
     citas = Cita.query.filter(
         Cita.id_usuario == current_user.id_usuario,
         Cita.estado == 'pendiente',
-        Cita.fecha >= datetime.now()   # ✅ Solo citas futuras o actuales
+        Cita.fecha >= datetime.now().date()   # ✅ Solo citas futuras o actuales
     ).order_by(Cita.fecha.asc()).all()
 
     return render_template("citas/listar.html", citas=citas)
@@ -79,18 +99,27 @@ def editar_cita(id_cita):
 @citas_bp.route("/atender/<int:id_cita>", methods=["POST"])
 @login_required
 def atender_cita(id_cita):
+    if current_user.rol != 'veterinario':
+        flash("❌ No tienes permiso para atender citas", "error")
+        return redirect(url_for("main.dashboard"))
+
     cita = Cita.query.get_or_404(id_cita)
 
-    # seguridad: solo el dueño puede marcar su cita
-    if cita.id_usuario != current_user.id_usuario:
-        flash("No puedes modificar esta cita", "danger")
-        return redirect(url_for("citas.listar_citas"))
+    # ✅ Verificar que la cita esté asignada a este veterinario
+    if cita.id_veterinario != current_user.id_usuario:
+        flash("❌ No puedes atender esta cita", "error")
+        return redirect(url_for("main.veterinario_panel"))
+
+    # ✅ Verificar que la cita esté pendiente
+    if cita.estado != 'pendiente':
+        flash("❌ Esta cita ya fue atendida o cancelada", "error")
+        return redirect(url_for("main.veterinario_panel"))
 
     cita.estado = "atendida"
     db.session.commit()
     flash("✅ La cita fue marcada como atendida", "success")
 
-    return redirect(url_for("citas.listar_citas"))
+    return redirect(url_for("main.veterinario_panel"))
 
 
 

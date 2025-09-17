@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>💊 Medicamentos</h2>
+    
+    {% if medicamentos %}
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for medicamento in medicamentos %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ medicamento.nombre }}</h5>
+                        <p class="card-text"><strong>Dosis:</strong> {{ medicamento.dosis }}</p>
+                        <p class="card-text"><strong>Laboratorio:</strong> {{ medicamento.laboratorio }}</p>
+
+                        {% if current_user.rol in ['admin', 'veterinario'] %}
+                        <div class="d-flex justify-content-end">
+                            <!-- Botón Editar -->
+                            <a href="{{ url_for('medicamento.editar', id_producto=medicamento.id_producto) }}" 
+                               class="btn btn-warning btn-sm me-2">Editar</a>
+
+                            <!-- Formulario para Eliminar (solo visible para admin) -->
+                            {% if current_user.rol == 'admin' %}
+                            <form action="{{ url_for('medicamento.eliminar', id_producto=medicamento.id_producto) }}" 
+                                  method="POST" 
+                                  style="display: inline;" 
+                                  onsubmit="return confirm('¿Seguro que deseas eliminar este medicamento?')">
+                                <button type="submit" class="btn btn-danger btn-sm">Eliminar</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">No hay medicamentos registrados.</div>
+    {% endif %}
+</div>
+{% endblock %}

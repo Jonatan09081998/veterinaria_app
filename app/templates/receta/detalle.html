@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Receta Médica</h2>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h5>Información de la Mascota</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Mascota:</strong> {{ receta.historia_clinica.mascota.nombre }} ({{ receta.historia_clinica.mascota.especie }})</p>
+            <p><strong>Propietario:</strong> {{ receta.historia_clinica.mascota.usuario.nombre }}</p>
+            <p><strong>Edad:</strong> {{ receta.historia_clinica.mascota.edad }} años</p>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h5>Historia Clínica</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Fecha:</strong> {{ receta.historia_clinica.fecha.strftime('%d/%m/%Y') }}</p>
+            <p><strong>Motivo de Consulta:</strong> {{ receta.historia_clinica.motivo_consulta }}</p>
+            <p><strong>Síntomas:</strong> {{ receta.historia_clinica.sintomas }}</p>
+            <p><strong>Diagnóstico:</strong> {{ receta.historia_clinica.diagnostico }}</p>
+            <p><strong>Observaciones:</strong> {{ receta.historia_clinica.observaciones }}</p>
+        </div>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h5>Medicamentos Recetados</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Medicamento</th>
+                        <th>Cantidad</th>
+                        <th>Indicaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for rm in receta.medicamentos %}
+                    <tr>
+                        <td>{{ rm.medicamento.nombre }}</td>
+                        <td>{{ rm.cantidad }}</td>
+                        <td>{{ rm.indicaciones }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="d-flex justify-content-between">
+        <a href="{{ url_for('receta.descargar_pdf', id_receta=receta.id_receta) }}" class="btn btn-success">
+            <i class="bi bi-download"></i> Descargar PDF
+        </a>
+        <a href="{{ url_for('main.veterinario_panel') }}" class="btn btn-secondary">Volver</a>
+    </div>
+</div>
+{% endblock %}

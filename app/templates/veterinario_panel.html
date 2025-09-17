@@ -1,59 +1,136 @@
 {% extends "base.html" %}
 
-{% block title %}Panel Veterinario{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
-    <div class="card p-4 shadow-sm">
-        <h1 class="h3">👋 Bienvenido, Dr. {{ current_user.nombre }}</h1>
-        <p class="text-muted">Gestiona tus citas y crea historias clínicas</p>
+    <h2><i class="fas fa-stethoscope"></i> Panel del Veterinario</h2>
+
+    <!-- Citas Pendientes -->
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="card-title">Citas Pendientes para Hoy</h3>
+        </div>
+        <div class="card-body">
+            {% if citas_pendientes|length == 0 %}
+                <p class="text-muted">No hay citas pendientes para hoy.</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Mascota</th>
+                                <th>Dueño</th>
+                                <th>Motivo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cita in citas_pendientes %}
+                            <tr>
+                                <td>{{ cita.hora.strftime('%H:%M') }}</td>
+                                <td>{{ cita.mascota.nombre }} ({{ cita.mascota.especie }})</td>
+                                <td>{{ cita.mascota.usuario.nombre }}</td>
+                                <td>{{ cita.motivo }}</td>
+                                <td>
+                                    <form action="{{ url_for('main.atender_cita', id_cita=cita.id_cita) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('¿Atender esta cita?')">
+                                            <i class="fas fa-check"></i> Atender
+                                        </button>
+                                    </form>
+                                    <a href="{{ url_for('receta.crear', id_mascota=cita.mascota.id_mascota) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-prescription"></i> Crear Receta
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
-    <!-- Próximas Citas -->
-    <div class="card mt-4 p-4">
-        <h2 class="h4">📅 Próximas Citas</h2>
-        {% if citas %}
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>fecha</th>
-                        <th>Hora</th>
-                        <th>Mascota</th>
-                        <th>Dueño</th>
-                        <th>Motivo</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for cita in citas %}
-                    <tr>
-                        <td>{{ cita.fecha.strftime('%d/%m/%Y') }}</td>
-                        <td>{{ cita.hora.strftime('%H:%M') }}</td>
-                        <td>{{ cita.mascota.nombre }}</td>
-                        <td>{{ cita.mascota.usuario.nombre }}</td>
-                        <td>{{ cita.motivo or 'Sin motivo' }}</td>
-                        <td>
-                            <a href="{{ url_for('historia.atender_cita', id_cita=cita.id_cita) }}" class="btn btn-sm btn-success">
-                                <i class="bi bi-check-circle"></i> Atender
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        {% else %}
-            <div class="alert alert-info">No tienes citas pendientes.</div>
-        {% endif %}
+    <!-- Citas Atendidas -->
+    <div class="card mb-4">
+        <div class="card-header bg-success text-white">
+            <h3 class="card-title">Citas Atendidas Hoy</h3>
+        </div>
+        <div class="card-body">
+            {% if citas_atendidas|length == 0 %}
+                <p class="text-muted">No hay citas atendidas hoy.</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Hora</th>
+                                <th>Mascota</th>
+                                <th>Dueño</th>
+                                <th>Motivo</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for cita in citas_atendidas %}
+                            <tr>
+                                <td>{{ cita.hora.strftime('%H:%M') }}</td>
+                                <td>{{ cita.mascota.nombre }} ({{ cita.mascota.especie }})</td>
+                                <td>{{ cita.mascota.usuario.nombre }}</td>
+                                <td>{{ cita.motivo }}</td>
+                                <td>
+                                    <a href="{{ url_for('receta.crear', id_mascota=cita.mascota.id_mascota) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-prescription"></i> Crear Receta
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
     <!-- Recetas Recientes -->
-    <div class="card mt-4 p-4">
-        <h2 class="h4">📄 Últimas Recetas</h2>
-        <ul class="list-group">
-            <li class="list-group-item">Firulais - Antiinflamatorio (hace 2 días)</li>
-            <li class="list-group-item">Michi - Antipulgas (hace 1 día)</li>
-            <li class="list-group-item">Toby - Antibiótico (hoy)</li>
-        </ul>
+    <div class="row mt-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3 class="card-title">Recetas Recientes</h3>
+                </div>
+                <div class="card-body">
+                    {% if recetas|length == 0 %}
+                        <p class="text-center">No hay recetas recientes</p>
+                    {% else %}
+                        <ul class="list-group">
+                            {% for receta in recetas %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    {{ receta.historia_clinica.mascota.nombre }} - {{ receta.fecha.strftime('%d/%m/%Y') }}
+                                    <div>
+                                        <a href="{{ url_for('receta.detalle', id_receta=receta.id_receta) }}" class="btn btn-sm btn-info">Ver</a>
+                                        <a href="{{ url_for('receta.descargar_pdf', id_receta=receta.id_receta) }}" class="btn btn-sm btn-success">PDF</a>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Acceso rápido a medicamentos -->
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-warning">
+                    <h3 class="card-title">Medicamentos</h3>
+                </div>
+                <div class="card-body d-flex flex-column justify-content-center">
+                    <a href="{{ url_for('medicamento.listar') }}" class="btn btn-lg btn-warning w-100">
+                        <i class="fas fa-pills"></i> Gestionar Medicamentos
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
