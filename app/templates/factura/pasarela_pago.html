@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}Pasarela de Pago{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title mb-0"><i class="bi bi-credit-card"></i> Pasarela de Pago</h3>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i> 
+                        <strong>Simulación de pago</strong> - Este es un sistema de prueba. No se cobrará ningún monto real.
+                    </div>
+                    
+                    <!-- Resumen del pedido -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">Resumen del Pedido</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in carrito_items %}
+                                    <tr>
+                                        <td>{{ item.producto.nombre }}</td>
+                                        <td>{{ item.cantidad }}</td>
+                                        <td>${{ "%.2f"|format(item.producto.precio) }}</td>
+                                        <td>${{ "%.2f"|format(item.cantidad * item.producto.precio) }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                    <tr>
+                                        <td colspan="3" class="text-end"><strong>Total a pagar:</strong></td>
+                                        <td><strong>${{ "%.2f"|format(total) }}</strong></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Formulario de datos del cliente -->
+                    <form method="POST" action="{{ url_for('factura.procesar_pago') }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre Completo *</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" 
+                                       value="{{ current_user.nombre }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Correo Electrónico *</label>
+                                <input type="email" class="form-control" id="email" name="email" 
+                                       value="{{ current_user.email }}" required>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección de Envío *</label>
+                            <textarea class="form-control" id="direccion" name="direccion" rows="3" 
+                                      placeholder="Ingresa tu dirección completa" required>{{ current_user.direccion or '' }}</textarea>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono" class="form-label">Teléfono *</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" 
+                                       value="{{ current_user.telefono or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="metodo_pago" class="form-label">Método de Pago *</label>
+                                <select class="form-select" id="metodo_pago" name="metodo_pago" required>
+                                    <option value="">Seleccionar método</option>
+                                    <option value="tarjeta">Tarjeta de Crédito/Débito</option>
+                                    <option value="transferencia">Transferencia Bancaria</option>
+                                    <option value="efectivo">Pago contra entrega</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Datos de tarjeta (solo si se selecciona tarjeta) -->
+                        <div id="datos_tarjeta" style="display: none;">
+                            <div class="card mb-3">
+                                <div class="card-header bg-secondary text-white">
+                                    <h6 class="mb-0">Datos de Tarjeta</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <label for="numero_tarjeta" class="form-label">Número de Tarjeta</label>
+                                        <input type="text" class="form-control" id="numero_tarjeta" 
+                                               name="numero_tarjeta" placeholder="1234 5678 9012 3456">
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label for="fecha_vencimiento" class="form-label">Fecha de Vencimiento</label>
+                                            <input type="text" class="form-control" id="fecha_vencimiento" 
+                                                   name="fecha_vencimiento" placeholder="MM/AA">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label for="cvv" class="form-label">CVV</label>
+                                            <input type="text" class="form-control" id="cvv" 
+                                                   name="cvv" placeholder="123">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <strong>Importante:</strong> Al hacer clic en "Confirmar Pago", aceptas nuestros términos y condiciones.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('carrito.ver') }}" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Volver al Carrito
+                            </a>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-shield-check"></i> Confirmar Pago (${{
+                                "%.2f"|format(total) }})
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Mostrar/ocultar datos de tarjeta según el método de pago
+document.getElementById('metodo_pago').addEventListener('change', function() {
+    const datosTarjeta = document.getElementById('datos_tarjeta');
+    if (this.value === 'tarjeta') {
+        datosTarjeta.style.display = 'block';
+    } else {
+        datosTarjeta.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}

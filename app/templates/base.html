@@ -61,38 +61,38 @@
             </button>
             <div class="collapse navbar-collapse" id="menu">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.home') }}">Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Servicios</a></li>
-                    <li class="nav-item"><a class="nav-link" href="{{ url_for('producto.tienda') }}">🛒 Tienda</a></li>
-                    {% if current_user.is_authenticated and current_user.rol == 'admin' %}
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('medicamento.listar') }}">
-                            <i class="bi bi-tablet-heart-pulse-fill"></i> 💊 Medicamentos
-                        </a>
-                    </li>
-                    {% endif %}
-                    {% if current_user.is_authenticated %}
-                        {% if current_user.rol == 'admin' %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.admin_panel') }}">🛠️ Admin</a></li>
-                        {% elif current_user.rol == 'veterinario' %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('main.veterinario_panel') }}">🩺 Veterinario</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('medicamento.listar') }}">💊 Medicamentos</a></li>
-                        {% else %}
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('citas.listar_citas') }}">📅 Citas</a></li>
-                            <li class="nav-item"><a class="nav-link" href="{{ url_for('mascotas.index') }}">🐾 Mascotas</a></li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ url_for('carrito.ver') }}">
-                                    🛒 Carrito
-                                    {% if current_user.carrito and current_user.carrito.items %}
-                                        <span class="badge bg-danger">{{ current_user.carrito.items|length }}</span>
-                                    {% endif %}
-                                </a>
-                            </li>
-                        {% endif %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesión</a></li>
-                    {% else %}
-                        <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
-                    {% endif %}
+                    
+                    <!-- Enlace a Tienda (visible para todos) -->
+<li class="nav-item"><a class="nav-link" href="{{ url_for('producto.tienda') }}">🛒 Tienda</a></li>
+
+<!-- Enlace a Panel Principal (solo para clientes) -->
+{% if current_user.is_authenticated and current_user.rol == 'usuario' %}
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> Panel Principal</a></li>
+{% endif %}
+
+<!-- Enlaces específicos por rol -->
+{% if current_user.is_authenticated %}
+    {% if current_user.rol == 'admin' %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.admin_panel') }}">🛠️ Admin</a></li>
+    {% elif current_user.rol == 'veterinario' %}
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('main.veterinario_panel') }}">🩺 Veterinario</a></li>
+    {% else %}
+        <!-- Para clientes normales -->
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('citas.listar_citas') }}">📅 Citas</a></li>
+        <li class="nav-item"><a class="nav-link" href="{{ url_for('mascotas.index') }}">🐾 Mascotas</a></li>
+        <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('carrito.ver') }}">
+                🛒 Carrito
+                {% if current_user.carrito and current_user.carrito.items %}
+                    <span class="badge bg-danger">{{ current_user.carrito.items|length }}</span>
+                {% endif %}
+            </a>
+        </li>
+    {% endif %}
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.logout') }}">Cerrar sesión</a></li>
+{% else %}
+    <li class="nav-item"><a class="nav-link" href="{{ url_for('auth.login') }}">Iniciar sesión</a></li>
+{% endif %}
                 </ul>
             </div>
         </div>

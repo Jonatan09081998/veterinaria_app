@@ -36,9 +36,14 @@
         </tbody>
     </table>
     
-    <a href="{{ url_for('producto.tienda') }}" class="btn btn-primary">Continuar Comprando</a>
-    <form action="{{ url_for('factura.pagar') }}" method="POST" onsubmit="return confirm('¿Confirmas tu compra?')">
-        <button type="submit" class="btn btn-success float-end">Pagar</button>
-    </form>
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{{ url_for('producto.tienda') }}" class="btn btn-primary">
+            <i class="bi bi-arrow-left"></i> Continuar Comprando
+        </a>
+        
+        <a href="{{ url_for('factura.pasarela') }}" class="btn btn-success float-end">
+    <i class="bi bi-credit-card"></i> Proceder al Pago
+</a>
+    </div>
 </div>
 {% endblock %}

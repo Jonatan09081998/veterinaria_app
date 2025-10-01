@@ -1,8 +1,10 @@
 # app/routes/factura.py
-from flask import Blueprint, render_template, redirect, url_for, flash, send_file
+from flask import Blueprint, render_template, redirect, url_for, flash, send_file, request
 from flask_login import login_required, current_user
+from app.decorators import rol_requerido
 from app.models.factura import Factura, DetalleFactura
 from app.models.carrito import Carrito, CarritoItem
+from app.models.producto import Producto
 from app import db
 import datetime
 from io import BytesIO
@@ -13,21 +15,54 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
 factura_bp = Blueprint('factura', __name__, url_prefix='/factura')
 
-@factura_bp.route('/pagar', methods=['POST'])
+@factura_bp.route('/pasarela')
 @login_required
-def pagar():
+def pasarela():
+    # Obtener carrito del usuario
     carrito = Carrito.query.filter_by(id_usuario=current_user.id_usuario).first()
+    
     if not carrito or not carrito.items:
         flash('Tu carrito está vacío', 'warning')
         return redirect(url_for('carrito.ver'))
     
-    # Crear factura
+    # Calcular total
     total = sum(item.cantidad * item.producto.precio for item in carrito.items)
+    
+    return render_template('factura/pasarela_pago.html', 
+                          carrito_items=carrito.items, 
+                          total=total)
+
+@factura_bp.route('/procesar_pago', methods=['POST'])
+@login_required
+def procesar_pago():
+    # Obtener carrito del usuario
+    carrito = Carrito.query.filter_by(id_usuario=current_user.id_usuario).first()
+    
+    if not carrito or not carrito.items:
+        flash('Tu carrito está vacío', 'warning')
+        return redirect(url_for('carrito.ver'))
+    
+    # Calcular total
+    total = sum(item.cantidad * item.producto.precio for item in carrito.items)
+    
+    # Obtener datos del formulario
+    nombre = request.form.get('nombre')
+    email = request.form.get('email')
+    direccion = request.form.get('direccion')
+    telefono = request.form.get('telefono')
+    metodo_pago = request.form.get('metodo_pago')
+    
+    # Crear factura
     factura = Factura(
         fecha=datetime.datetime.now().date(),
         total=total,
-        estado='pendiente',
-        id_usuario=current_user.id_usuario
+        estado='pagada',  # Simulamos pago exitoso
+        id_usuario=current_user.id_usuario,
+        nombre_cliente=nombre,
+        email_cliente=email,
+        direccion_envio=direccion,
+        telefono_cliente=telefono,
+        metodo_pago=metodo_pago
     )
     db.session.add(factura)
     db.session.flush()  # Para obtener el id_factura
@@ -38,22 +73,30 @@ def pagar():
             id_factura=factura.id_factura,
             id_producto=item.id_producto,
             cantidad=item.cantidad,
-            precio_unitario=item.producto.precio
+            precio_unitario=item.producto.precio,
+            
         )
         db.session.add(detalle)
+        
+        # Actualizar stock del producto
+        producto = Producto.query.get(item.id_producto)
+        if producto:
+            producto.stock -= item.cantidad
     
     # Vaciar carrito
     CarritoItem.query.filter_by(id_carrito=carrito.id_carrito).delete()
     
     db.session.commit()
-    flash('✅ Factura generada con éxito', 'success')
+    flash('✅ ¡Pago procesado con éxito! Tu factura ha sido generada.', 'success')
     return redirect(url_for('factura.detalle', id_factura=factura.id_factura))
 
 @factura_bp.route('/detalle/<int:id_factura>')
 @login_required
 def detalle(id_factura):
     factura = Factura.query.get_or_404(id_factura)
-    if factura.id_usuario != current_user.id_usuario:
+    
+    # ✅ Solo el dueño de la factura o el administrador pueden verla
+    if factura.id_usuario != current_user.id_usuario and current_user.rol != 'admin':
         flash('No tienes permiso para ver esta factura', 'error')
         return redirect(url_for('main.dashboard'))
     
@@ -93,9 +136,10 @@ def descargar_pdf(id_factura):
     story.append(Paragraph("<br/>", styles['Normal']))
     
     # Información del cliente
-    story.append(Paragraph(f"Cliente: {current_user.nombre}", styles['Normal']))
-    story.append(Paragraph(f"Dirección: {current_user.direccion or 'N/A'}", styles['Normal']))
-    story.append(Paragraph(f"Teléfono: {current_user.telefono or 'N/A'}", styles['Normal']))
+    story.append(Paragraph(f"Cliente: {factura.nombre_cliente}", styles['Normal']))
+    story.append(Paragraph(f"Dirección: {factura.direccion_envio or 'N/A'}", styles['Normal']))
+    story.append(Paragraph(f"Teléfono: {factura.telefono_cliente or 'N/A'}", styles['Normal']))
+    story.append(Paragraph(f"Método de Pago: {factura.metodo_pago or 'N/A'}", styles['Normal']))
     story.append(Paragraph("<br/>", styles['Normal']))
     
     # Tabla de productos
@@ -144,3 +188,25 @@ def descargar_pdf(id_factura):
         mimetype='application/pdf',
         as_attachment=True
     )
+@factura_bp.route('/listar')
+@login_required
+@rol_requerido("admin")
+def listar_facturas():
+    # Obtener todas las facturas (ordenadas por fecha descendente)
+    facturas = Factura.query.order_by(Factura.fecha.desc()).all()
+    return render_template('factura/listar.html', facturas=facturas)   
+@factura_bp.route('/eliminar/<int:id_factura>', methods=['POST'])
+@login_required
+@rol_requerido("admin")
+def eliminar_factura(id_factura):
+    factura = Factura.query.get_or_404(id_factura)
+    
+    # Eliminar todos los detalles de la factura primero (por integridad referencial)
+    DetalleFactura.query.filter_by(id_factura=id_factura).delete()
+    
+    # Luego eliminar la factura
+    db.session.delete(factura)
+    db.session.commit()
+    
+    flash('✅ Factura eliminada correctamente', 'success')
+    return redirect(url_for('factura.listar_facturas')) 

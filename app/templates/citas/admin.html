@@ -2,35 +2,310 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2>📋 Citas Pendientes</h2>
+    <div class="card p-4 shadow-sm">
+        <h1 class="h3">👋 Bienvenido, {{ current_user.nombre }}</h1>
+        <p class="text-muted">Panel de administrador - Gestión completa del sistema</p>
+    </div>
 
-    {% if citas %}
+    <!-- Estadísticas -->
+    <div class="row mt-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-people"></i> Usuarios</h5>
+                    <p class="card-text h3">{{ usuarios|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-paw"></i> Mascotas</h5>
+                    <p class="card-text h3">{{ mascotas|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-calendar-check"></i> Citas Hoy</h5>
+                    <p class="card-text h3">{{ citas_hoy|length }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="bi bi-prescription"></i> Recetas Hoy</h5>
+                    <p class="card-text h3">{{ recetas_hoy|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acceso Rápido -->
+    <div class="card mt-4 p-4">
+        <h2 class="h4">⚡ Acceso Rápido</h2>
+        <div class="row">
+            <div class="col-md-3 mb-2">
+                <a href="{{ url_for('producto.tienda') }}" class="btn btn-primary w-100">
+                    <i class="bi bi-cart"></i> Productos
+                </a>
+            </div>
+            <div class="col-md-3 mb-2">
+                <a href="{{ url_for('citas.listar_citas') }}" class="btn btn-success w-100">
+                    <i class="bi bi-calendar"></i> Todas las Citas
+                </a>
+            </div>
+            <div class="col-md-3 mb-2">
+                <a href="{{ url_for('producto.tienda') }}" class="btn btn-info w-100">
+                    <i class="bi bi-prescription"></i> Recetas
+                </a>
+            </div>
+            <div class="col-md-3 mb-2">
+                <a href="{{ url_for('auth.listar_usuarios') }}" class="btn btn-warning w-100">
+                    <i class="bi bi-person-badge"></i> Usuarios
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Listado de Citas Pendientes -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">📋 Citas Pendientes</h2>
+            <a href="{{ url_for('citas.listar_citas') }}" class="btn btn-sm btn-info">
+                Ver Todas las Citas
+            </a>
+        </div>
+        {% if citas %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Mascota</th>
+                        <th>Dueño</th>
+                        <th>Veterinario</th>
+                        <th>Motivo</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cita in citas %}
+                        {% if cita.estado == 'pendiente' %}
+                        <tr {% if cita.fecha < today %}class="table-danger"{% endif %}>
+                            <td>
+                                {{ cita.fecha.strftime('%d/%m/%Y') }}
+                                {% if cita.fecha < today %}
+                                    <span class="badge bg-warning">PASADA</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ cita.mascota.nombre }}</td>
+                            <td>{{ cita.mascota.usuario.nombre }}</td>
+                            <td>{{ cita.veterinario.nombre if cita.veterinario else 'No asignado' }}</td>
+                            <td>{{ cita.motivo or 'Sin motivo' }}</td>
+                            <td>
+                                {% if cita.fecha < today %}
+                                    <span class="badge bg-danger text-white">PASADA</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cita.fecha < today %}
+                                    <a href="{{ url_for('main.eliminar_cita', id_cita=cita.id_cita) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('¿Eliminar esta cita pasada?')">
+                                        🗑️
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('main.atender_cita', id_cita=cita.id_cita) }}" 
+                                       class="btn btn-sm btn-success"
+                                       onclick="return confirm('¿Atender esta cita?')">
+                                        ✅
+                                    </a>
+                                    <a href="{{ url_for('main.eliminar_cita', id_cita=cita.id_cita) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('¿Eliminar esta cita?')">
+                                        🗑️
+                                    </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-info">No hay citas pendientes.</div>
+        {% endif %}
+    </div>
+
+    <!-- Listado de Usuarios -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">👥 Usuarios Registrados</h2>
+            <a href="{{ url_for('auth.crear_usuario') }}" class="btn btn-sm btn-success">
+                + Nuevo Usuario
+            </a>
+        </div>
         <table class="table table-striped">
             <thead>
                 <tr>
-                    <th>Fecha</th>
-                    <th>Hora</th>
-                    <th>Mascota</th>
-                    <th>Cliente</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Rol</th>
+                    <th>Registrado</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for cita in citas %}
+                {% for usuario in usuarios %}
                 <tr>
-                    <td>{{ cita.fecha }}</td>
-                    <td>{{ cita.hora }}</td>
-                    <td>{{ cita.mascota.nombre }}</td>
-                    <td>{{ cita.usuario.nombre }}</td>
+                    <td>{{ usuario.nombre }}</td>
+                    <td>{{ usuario.email }}</td>
+                    <td><span class="badge bg-secondary">{{ usuario.rol }}</span></td>
+                    <td>{{ usuario.fecha_registro.strftime('%d/%m/%Y') if usuario.fecha_registro else 'N/A' }}</td>
                     <td>
-                        <a href="{{ url_for('citas.atender_cita', id_cita=cita.id_cita) }}" class="btn btn-sm btn-success">Atender</a>
+                        <a href="{{ url_for('auth.editar_usuario', id_usuario=usuario.id_usuario) }}" 
+                           class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('auth.eliminar_usuario', id_usuario=usuario.id_usuario) }}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar este usuario?')">
+                            Eliminar
+                        </a>
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-    {% else %}
-        <div class="alert alert-info">No hay citas pendientes.</div>
-    {% endif %}
+    </div>
+
+    <!-- Listado de Mascotas -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">🐾 Mascotas Registradas</h2>
+            <a href="{{ url_for('mascota.crear') }}" class="btn btn-sm btn-success">
+                + Nueva Mascota
+            </a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Especie</th>
+                    <th>Raza</th>
+                    <th>Dueño</th>
+                    <th>Edad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for mascota in mascotas %}
+                <tr>
+                    <td>{{ mascota.nombre }}</td>
+                    <td>{{ mascota.especie }}</td>
+                    <td>{{ mascota.raza }}</td>
+                    <td>{{ mascota.usuario.nombre }}</td>
+                    <td>{{ mascota.edad }} años</td>
+                    <td>
+                        <a href="{{ url_for('mascota.editar', id_mascota=mascota.id_mascota) }}" 
+                           class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('mascota.eliminar', id_mascota=mascota.id_mascota) }}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar esta mascota?')">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Listado de Productos/Medicamentos -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">🛍️ Productos y Medicamentos</h2>
+            <a href="{{ url_for('producto.tienda') }}" class="btn btn-sm btn-success">
+                Gestionar Productos
+            </a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.descripcion[:50] }}{% if producto.descripcion|length > 50 %}...{% endif %}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.stock }}</td>
+                    <td><span class="badge bg-secondary">{{ producto.categoria }}</span></td>
+                    <td>
+                        <a href="{{ url_for('producto.editar', id_producto=producto.id_producto) }}" 
+                           class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('producto.eliminar', id_producto=producto.id_producto) }}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar este producto?')">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Listado de Recetas -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">📝 Recetas Recientes</h2>
+            <a href="{{ url_for('receta.listar') }}" class="btn btn-sm btn-info">
+                Ver Todas las Recetas
+            </a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Mascota</th>
+                    <th>Veterinario</th>
+                    <th>Diagnóstico</th>
+                    <th>Tratamiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for receta in recetas %}
+                <tr>
+                    <td>{{ receta.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ receta.historia_clinica.mascota.nombre }}</td>
+                    <td>{{ receta.historia_clinica.veterinario.nombre }}</td>
+                    <td>{{ receta.diagnostico[:50] }}{% if receta.diagnostico|length > 50 %}...{% endif %}</td>
+                    <td>{{ receta.tratamiento[:50] }}{% if receta.tratamiento|length > 50 %}...{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('receta.detalle', id_receta=receta.id_receta) }}" 
+                           class="btn btn-sm btn-info">Ver</a>
+                        <a href="{{ url_for('receta.eliminar_receta', id_receta=receta.id_receta) }}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar esta receta?')">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% endblock %}

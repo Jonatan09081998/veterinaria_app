@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %}Panel Administrador{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
     <div class="card p-4 shadow-sm">
         <h1 class="h3">👋 Bienvenido, {{ current_user.nombre }}</h1>
         <p class="text-muted">Panel de administrador - Gestión completa del sistema</p>
     </div>
+
+    
 
     <!-- Estadísticas -->
     <div class="row mt-4">
@@ -31,24 +31,21 @@
             <div class="card bg-warning text-white">
                 <div class="card-body">
                     <h5 class="card-title"><i class="bi bi-calendar-check"></i> Citas Hoy</h5>
-                    <p class="card-text h3">
-                        {% set hoy = '' %} <!-- Flask no tiene fecha fácil, pero puedes pasarlo desde Python -->
-                        {% set citas_hoy = [] %}
-                        {% for cita in citas %}
-                            {% if cita.fecha.strftime('%Y-%m-%d') == '2025-09-05' %} <!-- Cambia por fecha real -->
-                                {% set _ = citas_hoy.append(cita) %}
-                            {% endif %}
-                        {% endfor %}
-                        {{ citas_hoy|length }}
-                    </p>
+                    <p class="card-text h3">{{ citas_hoy|length }}</p>
                 </div>
             </div>
         </div>
     </div>
 
+    
     <!-- Listado de Citas Pendientes -->
     <div class="card mt-4 p-4">
-        <h2 class="h4">📋 Citas Pendientes</h2>
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">📋 Citas Pendientes</h2>
+            <a href="{{ url_for('citas.listar_citas') }}" class="btn btn-sm btn-info">
+                Ver Todas las Citas
+            </a>
+        </div>
         {% if citas %}
             <table class="table table-striped">
                 <thead>
@@ -56,20 +53,52 @@
                         <th>Fecha</th>
                         <th>Mascota</th>
                         <th>Dueño</th>
+                        <th>Veterinario</th>
                         <th>Motivo</th>
                         <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for cita in citas %}
                         {% if cita.estado == 'pendiente' %}
-                        <tr>
-                            <td>{{ cita.fecha.strftime('%d/%m/%Y') }}</td>
+                        <tr {% if cita.fecha < today %}class="table-danger"{% endif %}>
+                            <td>
+                                {{ cita.fecha.strftime('%d/%m/%Y') }}
+                                {% if cita.fecha < today %}
+                                    <span class="badge bg-warning">PASADA</span>
+                                {% endif %}
+                            </td>
                             <td>{{ cita.mascota.nombre }}</td>
                             <td>{{ cita.mascota.usuario.nombre }}</td>
+                            <td>{{ cita.veterinario.nombre if cita.veterinario else 'No asignado' }}</td>
                             <td>{{ cita.motivo or 'Sin motivo' }}</td>
                             <td>
-                                <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% if cita.fecha < today %}
+                                    <span class="badge bg-danger text-white">PASADA</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if cita.fecha < today %}
+                                    <a href="{{ url_for('main.eliminar_cita', id_cita=cita.id_cita) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('¿Eliminar esta cita pasada?')">
+                                        🗑️
+                                    </a>
+                                {% else %}
+                                    <a href="{{ url_for('main.atender_cita', id_cita=cita.id_cita) }}" 
+                                       class="btn btn-sm btn-success"
+                                       onclick="return confirm('¿Atender esta cita?')">
+                                        ✅
+                                    </a>
+                                    <a href="{{ url_for('main.eliminar_cita', id_cita=cita.id_cita) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('¿Eliminar esta cita?')">
+                                        🗑️
+                                    </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endif %}
@@ -82,26 +111,200 @@
     </div>
 
     <!-- Listado de Usuarios -->
-    <div class="card mt-4 p-4">
+<div class="card mt-4 p-4">
+    <div class="d-flex justify-content-between mb-3">
         <h2 class="h4">👥 Usuarios Registrados</h2>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-success">
+            + Nuevo Usuario
+        </a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Rol</th>
+                <th>Registrado</th>
+                <th>Acciones</th>  <!-- ✅ Añadido -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for usuario in usuarios %}
+            <tr>
+                <td>{{ usuario.nombre }}</td>
+                <td>{{ usuario.email }}</td>
+                <td><span class="badge bg-secondary">{{ usuario.rol }}</span></td>
+                <td>{{ usuario.fecha_registro.strftime('%d/%m/%Y') if usuario.fecha_registro else 'N/A' }}</td>
+                <td>  <!-- ✅ Añadido -->
+                    <form method="POST" action="{{ url_for('main.eliminar_usuario', id_usuario=usuario.id_usuario) }}" 
+                          onsubmit="return confirm('¿Eliminar este usuario?\n\n⚠️ Esta acción no se puede deshacer.')" 
+                          style="display: inline;">
+                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+    <!-- Listado de Mascotas -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">🐾 Mascotas Registradas</h2>
+            <a href="{{ url_for('mascotas.crear') }}" class="btn btn-sm btn-success">
+                + Nueva Mascota
+            </a>
+        </div>
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th>Nombre</th>
-                    <th>Email</th>
-                    <th>Rol</th>
+                    <th>Especie</th>
+                    <th>Raza</th>
+                    <th>Dueño</th>
+                    <th>Edad</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                {% for usuario in usuarios %}
+                {% for mascota in mascotas %}
                 <tr>
-                    <td>{{ usuario.nombre }}</td>
-                    <td>{{ usuario.email }}</td>
-                    <td><span class="badge bg-secondary">{{ usuario.rol }}</span></td>
+                    <td>{{ mascota.nombre }}</td>
+                    <td>{{ mascota.especie }}</td>
+                    <td>{{ mascota.raza }}</td>
+                    <td>{{ mascota.usuario.nombre }}</td>
+                    <td>{{ mascota.edad }} años</td>
+                    <td>
+                        <a href="{{ url_for('mascotas.editar', id_mascota=mascota.id_mascota) }}" 
+                           class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('mascotas.eliminar', id_mascota=mascota.id_mascota) }}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar esta mascota?')">
+                            Eliminar
+                        </a>
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+
+    <!-- Listado de Productos/Medicamentos -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">🛍️ Productos y Medicamentos</h2>
+            <a href="{{ url_for('producto.tienda') }}" class="btn btn-sm btn-success">
+                Gestionar Productos
+            </a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Stock</th>
+                    <th>Categoría</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for producto in productos %}
+                <tr>
+                    <td>{{ producto.nombre }}</td>
+                    <td>{{ producto.descripcion[:50] }}{% if producto.descripcion|length > 50 %}...{% endif %}</td>
+                    <td>${{ producto.precio }}</td>
+                    <td>{{ producto.stock }}</td>
+                    <td><span class="badge bg-secondary">{{ producto.categoria }}</span></td>
+                    <td>
+                        <a href="{{ url_for('producto.editar', id_producto=producto.id_producto) }}" 
+                           class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{{ url_for('producto.eliminar', id_producto=producto.id_producto) }}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar este producto?')">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Listado de Recetas -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">📝 Recetas Recientes</h2>
+            <a href="{{ url_for('producto.tienda') }}" class="btn btn-sm btn-info">
+                Ver Todas las Recetas
+            </a>
+        </div>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Mascota</th>
+                    <th>Veterinario</th>
+                    <th>Diagnóstico</th>
+                    <th>Tratamiento</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for receta in recetas %}
+                <tr>
+                    <td>{{ receta.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ receta.historia_clinica.mascota.nombre }}</td>
+                    <td>{{ receta.historia_clinica.veterinario.nombre }}</td>
+                    <td>{{ receta.diagnostico[:50] if receta.diagnostico else 'N/A' }}{% if receta.diagnostico and receta.diagnostico|length > 50 %}...{% endif %}</td>
+                    <td>{{ receta.tratamiento[:50] if receta.tratamiento else 'N/A' }}{% if receta.tratamiento and receta.tratamiento|length > 50 %}...{% endif %}</td>
+                    <td>
+                        <a href="{{ url_for('receta.detalle', id_receta=receta.id_receta) }}" 
+                           class="btn btn-sm btn-info">Ver</a>
+                        <a href="{{ url_for('receta.eliminar_receta', id_receta=receta.id_receta) }}" 
+                           class="btn btn-sm btn-danger"
+                           onclick="return confirm('¿Eliminar esta receta?')">
+                            Eliminar
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- === SECCIÓN AÑADIDA: Productos Más Vendidos === -->
+    <div class="card mt-4 p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h2 class="h4">📦 Productos Más Vendidos</h2>
+            <a href="{{ url_for('factura.listar_facturas') }}" class="btn btn-sm btn-info">
+                Ver Todas las Facturas
+            </a>
+        </div>
+        
+        {% if productos_vendidos %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad Total Vendida</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for nombre_producto, total_vendido in productos_vendidos %}
+                    <tr>
+                        <td>{{ nombre_producto }}</td>
+                        <td>{{ total_vendido or 0 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="alert alert-info">No hay datos de productos vendidos aún.</div>
+        {% endif %}
+    </div>
+    <!-- === FIN SECCIÓN AÑADIDA === -->
+
 </div>
 {% endblock %}

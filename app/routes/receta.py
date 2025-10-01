@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 from flask_login import login_required, current_user
+from app.decorators import rol_requerido
 from app.models.historia_clinica import HistoriaClinica
 from app.models.receta import Receta, RecetaMedicamento
 from app.models.mascota import Mascota
@@ -167,3 +168,19 @@ def descargar_pdf(id_receta):
         mimetype='application/pdf',
         as_attachment=True
     )
+    
+@receta_bp.route('/eliminar_receta/<int:id_receta>', methods=['POST'])
+@login_required
+@rol_requerido("veterinario")
+def eliminar_receta(id_receta):
+    receta = Receta.query.get_or_404(id_receta)
+    
+    # Verificar que la receta pertenezca a una historia clínica del veterinario
+    if receta.historia_clinica.id_veterinario != current_user.id_usuario:
+        flash('No puedes eliminar esta receta', 'error')
+        return redirect(url_for('main.veterinario_panel'))
+    
+    db.session.delete(receta)
+    db.session.commit()
+    flash('✅ Receta eliminada correctamente', 'success')
+    return redirect(url_for('main.veterinario_panel'))    

@@ -5,7 +5,17 @@
 {% block content %}
 <div class="container py-4">
     <h1 class="mb-4">🛍️ Tienda de Productos</h1>
+
+    <!-- Botón para agregar nuevo producto (solo admin) -->
+    {% if current_user.is_authenticated and current_user.rol == 'admin' %}
+        <div class="mb-4 text-end">
+            <a href="{{ url_for('producto.crear') }}" class="btn btn-success">
+                ✅ Agregar Nuevo Producto
+            </a>
+        </div>
+    {% endif %}
     
+
     {% if productos|length == 0 %}
         <div class="alert alert-info">
             <i class="fas fa-info-circle"></i> No hay productos disponibles en este momento.
@@ -16,16 +26,22 @@
             <div class="col">
                 <div class="card h-100 shadow-sm">
                     <div class="card-body d-flex flex-column">
+
+                        <!-- Imagen del producto -->
                         {% if producto.imagen %}
-            <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" 
-                 class="img-fluid mb-3" 
-                 alt="{{ producto.nombre }}"
-                 style="max-height: 200px; object-fit: cover;">
-        {% else %}
-            <div class="text-center text-muted">Sin imagen</div>
-        {% endif %}
+                            <img src="{{ url_for('static', filename='img/' + producto.imagen) }}" 
+                                 class="img-fluid mb-3" 
+                                 alt="{{ producto.nombre }}"
+                                 style="max-height: 200px; object-fit: cover;">
+                        {% else %}
+                            <div class="text-center text-muted">Sin imagen</div>
+                        {% endif %}
+
+                        <!-- Información del producto -->
                         <h5 class="card-title">{{ producto.nombre }}</h5>
-                        <p class="card-text text-muted">{{ producto.descripcion[:100] }}{% if producto.descripcion|length > 100 %}...{% endif %}</p>
+                        <p class="card-text text-muted">
+                            {{ producto.descripcion[:100] }}{% if producto.descripcion|length > 100 %}...{% endif %}
+                        </p>
                         <div class="mt-auto">
                             <p class="card-text">
                                 <strong>Precio:</strong> ${{ "%.2f"|format(producto.precio|float) }}
@@ -33,25 +49,64 @@
                             <p class="card-text">
                                 <strong>Stock:</strong> {{ producto.stock }} unidades
                             </p>
-                            
-                            <!-- ✅ FORMULARIO DENTRO DEL FOR - producto SÍ está definido aquí -->
-                            <form method="POST" action="{{ url_for('carrito.agregar', id_producto=producto.id_producto) }}" class="mt-3">
-                                <div class="input-group mb-2">
-                                    <span class="input-group-text">Cantidad</span>
-                                    <input 
-                                        type="number" 
-                                        name="cantidad" 
-                                        value="1" 
-                                        min="1" 
-                                        max="{{ producto.stock }}" 
-                                        class="form-control"
-                                        required
-                                    >
-                                </div>
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="fas fa-cart-plus"></i> Agregar al carrito
-                                </button>
-                            </form>
+
+                            <div class="mb-4">
+                            <label><strong>Filtrar por:</strong></label>
+                            <select onchange="window.location.href=this.value" class="form-select">
+                            <option value="{{ url_for('producto.tienda') }}">Todos</option>
+                            <option value="{{ url_for('producto.tienda') }}?categoria=producto">Productos</option>
+                            <option value="{{ url_for('producto.tienda') }}?categoria=medicamento">Medicamentos</option>
+                            </select>
+                            </div>
+
+
+                            <!-- Acciones según el rol -->
+                            {% if current_user.is_authenticated and current_user.rol == 'admin' %}
+    <!-- Botones para admin -->
+    <div class="d-grid gap-2 mt-3">
+        <a href="{{ url_for('producto.editar', id_producto=producto.id_producto) }}" 
+           class="btn btn-warning btn-sm">
+            ✏️ Editar
+        </a>
+        <a href="{{ url_for('producto.eliminar', id_producto=producto.id_producto) }}" 
+           class="btn btn-danger btn-sm"
+           onclick="return confirm('¿Seguro que deseas eliminar este producto?')">
+            🗑️ Eliminar
+        </a>
+    </div>
+{% elif current_user.is_authenticated and current_user.rol == 'veterinario' %}
+    <!-- Botones para veterinario (solo editar y eliminar) -->
+    <div class="d-grid gap-2 mt-3">
+        <a href="{{ url_for('producto.editar', id_producto=producto.id_producto) }}" 
+           class="btn btn-warning btn-sm">
+            ✏️ Editar
+        </a>
+        <a href="{{ url_for('producto.eliminar', id_producto=producto.id_producto) }}" 
+           class="btn btn-danger btn-sm"
+           onclick="return confirm('¿Seguro que deseas eliminar este medicamento?')">
+            🗑️ Eliminar
+        </a>
+    </div>
+{% else %}
+    <!-- Formulario de carrito solo para invitados y clientes -->
+    <form method="POST" action="{{ url_for('carrito.agregar', id_producto=producto.id_producto) }}" class="mt-3">
+        <div class="input-group mb-2">
+            <span class="input-group-text">Cantidad</span>
+            <input 
+                type="number" 
+                name="cantidad" 
+                value="1" 
+                min="1" 
+                max="{{ producto.stock }}" 
+                class="form-control"
+                required
+            >
+        </div>
+        <button type="submit" class="btn btn-primary w-100">
+            <i class="fas fa-cart-plus"></i> Agregar al carrito
+        </button>
+    </form>
+{% endif %}
                         </div>
                     </div>
                 </div>

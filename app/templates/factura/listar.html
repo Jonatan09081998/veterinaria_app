@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Listado de Facturas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-between mb-3">
+        <h2>📄 Listado de Facturas</h2>
+        <a href="{{ url_for('main.admin_panel') }}" class="btn btn-secondary">
+            ← Volver al Panel
+        </a>
+    </div>
+
+    {% if facturas %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Fecha</th>
+                    <th>Total</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for factura in facturas %}
+                <tr>
+                    <td>{{ factura.id_factura }}</td>
+                    <td>{{ factura.nombre_cliente or 'N/A' }}</td>
+                    <td>{{ factura.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>${{ "%.2f"|format(factura.total) }}</td>
+                    <td><span class="badge bg-{% if factura.estado == 'pagada' %}success{% else %}warning{% endif %}">
+                        {{ factura.estado }}
+                    </span></td>
+                    <td>
+                        <a href="{{ url_for('factura.detalle', id_factura=factura.id_factura) }}" 
+                           class="btn btn-sm btn-info">Ver</a>
+                       
+                           <!-- === BOTÓN ELIMINAR === -->
+                        <form method="POST" action="{{ url_for('factura.eliminar_factura', id_factura=factura.id_factura) }}" 
+                              onsubmit="return confirm('¿Seguro que deseas eliminar esta factura?')" 
+                              style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <div class="alert alert-info">No hay facturas registradas.</div>
+    {% endif %}
+</div>
+{% endblock %}

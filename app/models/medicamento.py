@@ -11,6 +11,6 @@ class Medicamento(Producto):
     contraindicaciones = db.Column(db.Text)
     laboratorio = db.Column(db.String(100))
     registro_sanitario = db.Column(db.String(50), unique=True)
-    
+    stock = db.Column(db.Integer, default=0)  # Stock específico para medicamentos
     # Relación con recetas
     receta_medicamentos = db.relationship('RecetaMedicamento', back_populates='medicamento', lazy=True)

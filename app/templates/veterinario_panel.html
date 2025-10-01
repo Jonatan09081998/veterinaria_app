@@ -7,16 +7,17 @@
     <!-- Citas Pendientes -->
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
-            <h3 class="card-title">Citas Pendientes para Hoy</h3>
+            <h3 class="card-title">Citas Pendientes</h3>
         </div>
         <div class="card-body">
             {% if citas_pendientes|length == 0 %}
-                <p class="text-muted">No hay citas pendientes para hoy.</p>
+                <p class="text-muted">No hay citas pendientes.</p>
             {% else %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>Fecha</th>
                                 <th>Hora</th>
                                 <th>Mascota</th>
                                 <th>Dueño</th>
@@ -26,20 +27,38 @@
                         </thead>
                         <tbody>
                             {% for cita in citas_pendientes %}
-                            <tr>
+                            <tr {% if cita.fecha < today %}class="table-danger"{% endif %}>
+                                <td>
+                                    {{ cita.fecha.strftime('%d/%m/%Y') }}
+                                    {% if cita.fecha < today %}
+                                        <span class="badge bg-warning">PASADA</span>
+                                    {% endif %}
+                                </td>
                                 <td>{{ cita.hora.strftime('%H:%M') }}</td>
                                 <td>{{ cita.mascota.nombre }} ({{ cita.mascota.especie }})</td>
                                 <td>{{ cita.mascota.usuario.nombre }}</td>
                                 <td>{{ cita.motivo }}</td>
                                 <td>
-                                    <form action="{{ url_for('main.atender_cita', id_cita=cita.id_cita) }}" method="POST" class="d-inline">
-                                        <button type="submit" class="btn btn-success btn-sm" onclick="return confirm('¿Atender esta cita?')">
-                                            <i class="fas fa-check"></i> Atender
-                                        </button>
-                                    </form>
-                                    <a href="{{ url_for('receta.crear', id_mascota=cita.mascota.id_mascota) }}" class="btn btn-info btn-sm">
-                                        <i class="fas fa-prescription"></i> Crear Receta
-                                    </a>
+                                    {% if cita.fecha < today %}
+                                        <!-- Cita pasada: solo eliminar -->
+                                        <a href="{{ url_for('main.eliminar_cita', id_cita=cita.id_cita) }}" 
+                                           class="btn btn-sm btn-outline-danger" 
+                                           onclick="return confirm('¿Eliminar esta cita pasada?')">
+                                            <i class="fas fa-trash"></i> Eliminar
+                                        </a>
+                                    {% else %}
+                                        <!-- Cita actual: atender o crear receta -->
+                                        <form action="{{ url_for('main.atender_cita', id_cita=cita.id_cita) }}" method="POST" class="d-inline">
+                                            <button type="submit" class="btn btn-success btn-sm" 
+                                                    onclick="return confirm('¿Atender esta cita?')">
+                                                <i class="fas fa-check"></i> Atender
+                                            </button>
+                                        </form>
+                                        <a href="{{ url_for('receta.crear', id_mascota=cita.mascota.id_mascota) }}" 
+                                           class="btn btn-info btn-sm">
+                                            <i class="fas fa-prescription"></i> Crear Receta
+                                        </a>
+                                    {% endif %}
                                 </td>
                             </tr>
                             {% endfor %}
@@ -53,16 +72,17 @@
     <!-- Citas Atendidas -->
     <div class="card mb-4">
         <div class="card-header bg-success text-white">
-            <h3 class="card-title">Citas Atendidas Hoy</h3>
+            <h3 class="card-title">Citas Atendidas</h3>
         </div>
         <div class="card-body">
             {% if citas_atendidas|length == 0 %}
-                <p class="text-muted">No hay citas atendidas hoy.</p>
+                <p class="text-muted">No hay citas atendidas.</p>
             {% else %}
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead>
                             <tr>
+                                <th>Fecha</th>
                                 <th>Hora</th>
                                 <th>Mascota</th>
                                 <th>Dueño</th>
@@ -73,15 +93,23 @@
                         <tbody>
                             {% for cita in citas_atendidas %}
                             <tr>
+                                <td>{{ cita.fecha.strftime('%d/%m/%Y') }}</td>
                                 <td>{{ cita.hora.strftime('%H:%M') }}</td>
                                 <td>{{ cita.mascota.nombre }} ({{ cita.mascota.especie }})</td>
                                 <td>{{ cita.mascota.usuario.nombre }}</td>
                                 <td>{{ cita.motivo }}</td>
                                 <td>
-                                    <a href="{{ url_for('receta.crear', id_mascota=cita.mascota.id_mascota) }}" class="btn btn-info btn-sm">
-                                        <i class="fas fa-prescription"></i> Crear Receta
-                                    </a>
-                                </td>
+    <a href="{{ url_for('receta.crear', id_mascota=cita.mascota.id_mascota) }}" 
+       class="btn btn-info btn-sm">
+        Crear Receta
+    </a>
+    <form action="{{ url_for('main.eliminar_cita_atendida', id_cita=cita.id_cita) }}" method="POST" class="d-inline">
+        <button type="submit" class="btn btn-sm btn-outline-danger" 
+                onclick="return confirm('¿Eliminar esta cita atendida?')">
+            Eliminar
+        </button>
+    </form>
+</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -107,9 +135,15 @@
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
                                     {{ receta.historia_clinica.mascota.nombre }} - {{ receta.fecha.strftime('%d/%m/%Y') }}
                                     <div>
-                                        <a href="{{ url_for('receta.detalle', id_receta=receta.id_receta) }}" class="btn btn-sm btn-info">Ver</a>
-                                        <a href="{{ url_for('receta.descargar_pdf', id_receta=receta.id_receta) }}" class="btn btn-sm btn-success">PDF</a>
-                                    </div>
+                         <a href="{{ url_for('receta.detalle', id_receta=receta.id_receta) }}" class="btn btn-sm btn-info">Ver</a>
+                         <a href="{{ url_for('receta.descargar_pdf', id_receta=receta.id_receta) }}" class="btn btn-sm btn-success">PDF</a>
+                         <form action="{{ url_for('receta.eliminar_receta', id_receta=receta.id_receta) }}" method="POST" class="d-inline">
+                  <button type="submit" class="btn btn-sm btn-outline-danger" 
+                onclick="return confirm('¿Eliminar esta receta?')">
+            Eliminar
+        </button>
+    </form>
+  </div>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -125,8 +159,9 @@
                     <h3 class="card-title">Medicamentos</h3>
                 </div>
                 <div class="card-body d-flex flex-column justify-content-center">
-                    <a href="{{ url_for('medicamento.listar') }}" class="btn btn-lg btn-warning w-100">
-                        <i class="fas fa-pills"></i> Gestionar Medicamentos
+                    <a href="{{ url_for('producto.tienda', categoria='medicamento') }}" 
+                    class="btn btn-lg btn-warning w-100">
+                    <i class="fas fa-pills"></i> Gestionar Medicamentos
                     </a>
                 </div>
             </div>

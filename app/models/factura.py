@@ -10,6 +10,12 @@ class Factura(db.Model):
     total = db.Column(db.Float, nullable=False)
     estado = db.Column(db.String(20), default='pendiente')
     id_usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id_usuario'), nullable=False)
+    
+    nombre_cliente = db.Column(db.String(100))
+    email_cliente = db.Column(db.String(100))
+    direccion_envio = db.Column(db.Text)
+    telefono_cliente = db.Column(db.String(20))
+    metodo_pago = db.Column(db.String(50))
 
     # Relación con usuario
     usuario = db.relationship('Usuario', backref='facturas')

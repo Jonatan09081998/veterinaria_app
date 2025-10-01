@@ -3,13 +3,122 @@ from flask_login import login_required, current_user
 from app.models.producto import Producto
 from app import db
 import os
+from flask import current_app
+from werkzeug.utils import secure_filename
+
 
 producto_bp = Blueprint('producto', __name__, url_prefix='/producto')
 
 @producto_bp.route('/tienda')
 def tienda():
+    categoria = request.args.get('categoria', 'todos')
     productos = Producto.query.all()
+    # Obtener todos los productos
+    productos = Producto.query.all()
+
+    # Filtrar en memoria
+    if categoria == 'medicamento':
+        # Lista de palabras clave que identifican medicamentos
+        palabras_clave = ['amoxicilina', 'ivermectina', 'ketofast', 'paracetamol', 'antibiótico', 'antipulgas']
+        productos = [
+            p for p in productos
+            if any(keyword in p.nombre.lower() for keyword in palabras_clave)
+        ]
+    elif categoria == 'producto':
+        palabras_clave = ['amoxicilina', 'ivermectina', 'ketofast', 'paracetamol', 'antibiótico', 'antipulgas']
+        productos = [
+            p for p in productos
+            if not any(keyword in p.nombre.lower() for keyword in palabras_clave)
+        ]
     return render_template('producto/tienda.html', productos=productos)
+
+@producto_bp.route('/crear_medicamento', methods=['GET', 'POST'])
+@login_required
+def crear_medicamento():
+    if current_user.rol != 'admin':
+        flash('No tienes permiso para crear medicamentos', 'error')
+        return redirect(url_for('producto.tienda'))
+
+    # Asegurar que la carpeta 'static/img' exista
+    upload_folder = os.path.join(current_app.root_path, 'static', 'img')
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        descripcion = request.form.get('descripcion', '')
+        precio = float(request.form['precio'])
+        stock = int(request.form['stock'])
+
+        # Guardar imagen
+        imagen = None
+        if 'imagen' in request.files:
+            file = request.files['imagen']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(upload_folder, filename)  # Ruta absoluta
+                file.save(filepath)
+                imagen = filename  # Solo el nombre del archivo
+
+        # Crear producto como medicamento
+        nuevo_producto = Producto(
+            nombre=nombre,
+            descripcion=descripcion,
+            precio=precio,
+            stock=stock,
+            imagen=imagen,
+            categoria='medicamento'  # Asegúrate de tener este campo en tu modelo
+        )
+        db.session.add(nuevo_producto)
+        db.session.commit()
+        flash('✅ Medicamento creado exitosamente', 'success')
+        return redirect(url_for('producto.tienda'))
+
+    return render_template('producto/crear_medicamento.html') 
+
+
+
+@producto_bp.route('/crear', methods=['GET', 'POST'])
+@login_required
+def crear():
+    if current_user.rol != 'admin':
+        flash('No tienes permiso para crear productos', 'error')
+        return redirect(url_for('producto.tienda'))
+
+    # Asegurar que la carpeta 'static/img' exista
+    upload_folder = os.path.join(current_app.root_path, 'static', 'img')
+    if not os.path.exists(upload_folder):
+        os.makedirs(upload_folder)
+
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        descripcion = request.form.get('descripcion', '')
+        precio = float(request.form['precio'])
+        stock = int(request.form['stock'])
+
+        # Guardar imagen
+        imagen = None
+        if 'imagen' in request.files:
+            file = request.files['imagen']
+            if file.filename != '':
+                filename = secure_filename(file.filename)
+                filepath = os.path.join(upload_folder, filename)  # ✅ Ruta absoluta
+                file.save(filepath)
+                imagen = filename  # ✅ Ruta relativa para BD
+
+        nuevo_producto = Producto(
+            nombre=nombre,
+            descripcion=descripcion,
+            precio=precio,
+            stock=stock,
+            imagen=imagen
+        )
+        db.session.add(nuevo_producto)
+        db.session.commit()
+        flash('✅ Producto creado exitosamente', 'success')
+        return redirect(url_for('producto.tienda'))
+
+    return render_template('producto/crear.html')
 
 
 
